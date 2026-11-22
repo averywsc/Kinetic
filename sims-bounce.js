@@ -860,7 +860,7 @@
           drawSphere(c, b.x, b.y, dr, pal, (b.tier * 0.13) % 1, S.material, true);
           if (!small && dr > 11 * dpr) {
             c.fillStyle = 'rgba(255,255,255,0.88)';
-            c.font = `600 ${Math.round(dr * 0.58)}px "JetBrains Mono", monospace`;
+            c.font = `600 ${Math.round(dr * 0.58)}px "DM Sans", -apple-system, sans-serif`;
             c.textAlign = 'center'; c.textBaseline = 'middle';
             c.fillText(TIERS[b.tier], b.x, b.y + 1);
           }

@@ -9,55 +9,65 @@
   const SIMS = window.KSIMS;
   const $ = id => document.getElementById(id);
 
-  // 28 Curated Satisfying Simulations organized by category
+  // 35 Curated Satisfying Simulations organized by category
   const CATALOG = [
+    // Will It Escape?
+    { id: 'freeze_escape', name: 'Freeze & Escape', cat: 'escape', pal: 0, desc: 'Every 3s the ball freezes in place and a new one drops — how long until it escapes?' },
+    { id: 'timed_escape',  name: '15s Escape',      cat: 'escape', pal: 1, desc: 'Can the sphere shatter 16 spinning rings before 15 seconds run out?' },
+    { id: 'narrow_escape', name: 'Closing Gap',     cat: 'escape', pal: 2, desc: 'The exit gap seals tighter every second — will it escape in time?' },
+    { id: 'maze_escape',   name: 'Spinning Maze',   cat: 'escape', pal: 4, desc: 'Navigate 6 rotating concentric walls to escape the labyrinth' },
+    { id: 'gate_escape',   name: 'Orbit Gate',      cat: 'escape', pal: 3, desc: 'Thread the narrow portal past two orbiting guard shields' },
+    { id: 'escape',        name: 'Escape Rings',    cat: 'escape', pal: 1, desc: 'Slip through spinning gaps to shatter 12 metallic rings' },
+    { id: 'shrink',        name: 'Shrink Escape',   cat: 'escape', pal: 4, desc: 'Shrinks each hit to squeeze through tighter and tighter gaps' },
+
+    // 3D & Waves
+    { id: 'iso_torus',     name: '3D Vortex Disc',  cat: 'waves',  pal: 1, desc: 'Isometric 3D pedestal with swirling toroidal particle funnel' },
+    { id: 'iso_wave',      name: '3D Wave Slab',    cat: 'waves',  pal: 3, desc: 'Floating 3D sphere matrix morphing between waves and deep funnels' },
+    { id: 'ripples',       name: 'Ripple Tank',     cat: 'waves',  pal: 2, desc: 'Real 2D wave-equation water interference with droplet ASMR' },
+    { id: 'cradle',        name: "Newton's Cradle", cat: 'waves',  pal: 2, desc: 'Brushed steel spheres with crisp elastic clack physics' },
+    { id: 'galton',        name: 'Peg Cascade',     cat: 'waves',  pal: 0, desc: 'Beads plinking down pegs into a Gaussian bell curve' },
+    { id: 'sand',          name: 'Sand Hourglass',  cat: 'waves',  pal: 5, desc: 'Striated rainbow sand cascading over glass baffles' },
+    { id: 'doublepend',    name: 'Chaos Fan',       cat: 'waves',  pal: 5, desc: '12 double pendulums diverging from unison into silk trails' },
+    { id: 'laser',         name: 'Caustic Beam',    cat: 'waves',  pal: 2, desc: 'Sweeping mirror reflections & star-polygon envelopes' },
+    { id: 'gravity',       name: 'Orbital',         cat: 'waves',  pal: 3, desc: 'Comets slingshotting around binary stars' },
+    { id: 'boids',         name: 'Murmuration',     cat: 'waves',  pal: 0, desc: '210 luminous particles flocking in velvet ribbons' },
+    { id: 'cloth',         name: 'Silk Mesh',       cat: 'waves',  pal: 3, desc: 'Interactive Verlet-physics woven tension cloth' },
+    { id: 'epicycle',      name: 'Epicycles',       cat: 'waves',  pal: 4, desc: 'Precision rotating arms tracing sacred geometry' },
+
     // Rings & Bounce
-    { id: 'grow',         name: 'Grow Ring',     cat: 'bounce',  pal: 0, desc: 'Sphere grows on every bounce until finale' },
-    { id: 'escape',       name: 'Escape Rings',  cat: 'bounce',  pal: 1, desc: 'Slip through spinning gaps to shatter 12 rings' },
-    { id: 'tether',       name: 'Tether Web',    cat: 'bounce',  pal: 2, desc: 'Every wall bounce weaves a taut glowing string' },
-    { id: 'polygon',      name: 'Polygon Morph', cat: 'bounce',  pal: 3, desc: 'Container gains a vibrating side on every hit' },
-    { id: 'shrink',       name: 'Shrink Escape', cat: 'bounce',  pal: 4, desc: 'Shrinks each hit to squeeze through tighter gaps' },
-    { id: 'duel',         name: 'Ring Duel',     cat: 'bounce',  pal: 5, desc: 'Two rival spheres clash and steal size' },
-    { id: 'paint',        name: 'Paint Ring',    cat: 'bounce',  pal: 1, desc: 'Permanent layered ceramic paint strokes' },
+    { id: 'grow',          name: 'Grow Ring',       cat: 'bounce', pal: 0, desc: 'Sphere grows on every bounce until finale' },
+    { id: 'tether',        name: 'Tether Web',      cat: 'bounce', pal: 2, desc: 'Every wall bounce weaves a taut glowing string' },
+    { id: 'polygon',       name: 'Polygon Morph',   cat: 'bounce', pal: 3, desc: 'Container gains a vibrating side on every hit' },
+    { id: 'duel',          name: 'Ring Duel',       cat: 'bounce', pal: 5, desc: 'Two rival spheres clash and steal size' },
+    { id: 'paint',         name: 'Paint Ring',      cat: 'bounce', pal: 1, desc: 'Permanent layered ceramic paint strokes' },
 
     // Musical & MIDI
-    { id: 'midi',         name: 'MIDI Pads',     cat: 'music',   pal: 0, desc: 'Marble strikes curved acoustic pads playing real songs' },
-    { id: 'squarebounce', name: 'Rhythm Bounce', cat: 'music',   pal: 5, desc: 'Beveled cube bouncing down a synced melody canyon' },
-    { id: 'polyrhythm',   name: 'Polyrhythm',    cat: 'music',   pal: 2, desc: '18 concentric arches weaving harmonic standing waves' },
-    { id: 'pendulum',     name: 'Pendulum Wave', cat: 'music',   pal: 3, desc: '22 phase-locked bobs drifting through double helices' },
-    { id: 'domino',       name: 'Domino Spiral', cat: 'music',   pal: 4, desc: '144 beveled dominoes cascading in a musical wave' },
+    { id: 'midi',          name: 'MIDI Pads',       cat: 'music',  pal: 0, desc: 'Marble strikes curved acoustic pads playing real songs' },
+    { id: 'squarebounce',  name: 'Rhythm Bounce',   cat: 'music',  pal: 5, desc: 'Beveled cube bouncing down a synced melody canyon' },
+    { id: 'polyrhythm',    name: 'Polyrhythm',      cat: 'music',  pal: 2, desc: '18 concentric arches weaving harmonic standing waves' },
+    { id: 'pendulum',      name: 'Pendulum Wave',   cat: 'music',  pal: 3, desc: '22 phase-locked bobs drifting through double helices' },
+    { id: 'domino',        name: 'Domino Spiral',   cat: 'music',  pal: 4, desc: '144 beveled dominoes cascading in a musical wave' },
 
     // Smash & Merge
-    { id: 'suika',        name: 'Merge Jar',     cat: 'smash',   pal: 5, desc: 'Matching numbered spheres squish-merge into higher tiers' },
-    { id: 'multiply',     name: 'Multiply',      cat: 'smash',   pal: 0, desc: '1 marble splits into 100+ clacking colliding spheres' },
-    { id: 'breaker',      name: 'Ring Breaker',  cat: 'smash',   pal: 1, desc: 'Chrome marbles shatter concentric curved glass rings' },
-    { id: 'slicer',       name: 'Laser Slicer',  cat: 'smash',   pal: 2, desc: 'Sweeping laser blade cleanly halves floating orbs' },
-    { id: 'territory',    name: 'Territory War', cat: 'smash',   pal: 5, desc: '4 rival teams conquering beveled ceramic tiles' },
-    { id: 'race',         name: 'Marble Race',   cat: 'smash',   pal: 1, desc: '8 glass marbles racing through windmills & funnels' },
-
-    // ASMR & Waves
-    { id: 'cradle',       name: "Newton's Cradle", cat: 'asmr',  pal: 2, desc: 'Brushed steel spheres with crisp elastic clack ASMR' },
-    { id: 'ripples',      name: 'Ripple Tank',   cat: 'asmr',    pal: 2, desc: 'Real 2D wave-equation water interference & droplets' },
-    { id: 'galton',       name: 'Peg Cascade',   cat: 'asmr',    pal: 0, desc: 'Beads plinking down pegs into a Gaussian bell curve' },
-    { id: 'sand',         name: 'Sand Hourglass', cat: 'asmr',   pal: 5, desc: 'Striated rainbow sand cascading over glass baffles' },
-    { id: 'doublepend',   name: 'Chaos Fan',     cat: 'asmr',    pal: 5, desc: '12 RK4 double pendulums diverging from unison' },
-    { id: 'laser',        name: 'Caustic Beam',  cat: 'asmr',    pal: 2, desc: 'Sweeping mirror reflections & star-polygon envelopes' },
-    { id: 'gravity',      name: 'Orbital',       cat: 'asmr',    pal: 3, desc: 'Comets slingshotting around binary stars' },
-    { id: 'boids',        name: 'Murmuration',   cat: 'asmr',    pal: 0, desc: '210 luminous particles flocking in velvet ribbons' },
-    { id: 'cloth',        name: 'Silk Mesh',     cat: 'asmr',    pal: 3, desc: 'Interactive Verlet-physics woven tension cloth' },
-    { id: 'epicycle',     name: 'Epicycles',     cat: 'asmr',    pal: 4, desc: 'Precision rotating arms tracing sacred geometry' }
+    { id: 'suika',         name: 'Merge Jar',       cat: 'smash',  pal: 5, desc: 'Matching numbered spheres squish-merge into higher tiers' },
+    { id: 'multiply',      name: 'Multiply',        cat: 'smash',  pal: 0, desc: '1 marble splits into 100+ clacking colliding spheres' },
+    { id: 'breaker',       name: 'Ring Breaker',    cat: 'smash',  pal: 1, desc: 'Chrome marbles shatter concentric curved glass rings' },
+    { id: 'slicer',        name: 'Laser Slicer',    cat: 'smash',  pal: 2, desc: 'Sweeping laser blade cleanly halves floating orbs' },
+    { id: 'territory',     name: 'Territory War',   cat: 'smash',  pal: 5, desc: '4 rival teams conquering beveled ceramic tiles' },
+    { id: 'race',          name: 'Marble Race',     cat: 'smash',  pal: 1, desc: '8 glass marbles racing through windmills & funnels' }
   ];
 
   const CATS = [
-    ['all',    'All (28)'],
+    ['all',    `All (${CATALOG.length})`],
+    ['escape', 'Will It Escape?'],
+    ['waves',  '3D & Waves'],
     ['bounce', 'Rings & Bounce'],
     ['music',  'Musical & MIDI'],
-    ['smash',  'Smash & Merge'],
-    ['asmr',   'ASMR & Waves']
+    ['smash',  'Smash & Merge']
   ];
 
-  const S = {
-    sim: 'grow',
+  const DEFAULTS = Object.freeze({
+    sim: 'freeze_escape',
     pal: 0,
     material: 'glass',
     timbre: 'marimba',
@@ -66,18 +76,20 @@
     grav: 1.0,
     bounce: 1.01,
     trail: 64,
-    glow: 22,       // Refined low-glare studio bloom!
-    bright: 92,     // Controlled studio luminance (no blown-out glare!)
+    glow: 22,
+    bright: 92,
     vol: 68,
     sound: true,
     paused: false,
     autorun: false,
     reels: false
-  };
-  try { Object.assign(S, JSON.parse(localStorage.getItem('kinetic:v2')) || {}); } catch (e) {}
+  });
+
+  const S = Object.assign({}, DEFAULTS);
+  try { Object.assign(S, JSON.parse(localStorage.getItem('kinetic:v3')) || {}); } catch (e) {}
   S.paused = false;
-  if (!SIMS[S.sim]) S.sim = 'grow';
-  const saveState = () => { try { localStorage.setItem('kinetic:v2', JSON.stringify(S)); } catch (e) {} };
+  if (!SIMS[S.sim]) S.sim = DEFAULTS.sim;
+  const saveState = () => { try { localStorage.setItem('kinetic:v3', JSON.stringify(S)); } catch (e) {} };
 
   /* =========================================================================
      Canvas Pipeline & Subtle Studio Compositor
@@ -134,6 +146,22 @@
     startSim(pick.id, true);
   };
 
+  const resetDefaults = () => {
+    const keepSim = S.sim;
+    const curItem = CATALOG.find(x => x.id === keepSim) || CATALOG[0];
+    const wasReels = S.reels;
+    Object.assign(S, DEFAULTS, { sim: keepSim, pal: curItem.pal });
+    try { localStorage.removeItem('kinetic:v3'); } catch (e) {}
+    syncUI();
+    if (wasReels !== S.reels) {
+      setTimeout(resize, 50);
+      setTimeout(resize, 460);
+    } else {
+      startSim(S.sim, false);
+    }
+    showToast('Defaults restored', 'Physics, look, and audio settings reset');
+  };
+
   const frame = now => {
     const dt = Math.min(2.4, (now - lastT) / 16.667);
     lastT = now;
@@ -142,7 +170,6 @@
       activeSim.step(dt, now, ptr, activePal);
       activeSim.draw(sctx, now, activePal, ptr);
 
-      // Composite main buffer with controlled brightness & subtle studio bloom
       out.setTransform(1, 0, 0, 1, 0, 0);
       out.globalCompositeOperation = 'source-over';
       out.globalAlpha = 1;
@@ -163,7 +190,7 @@
       $('stxt').textContent = activeSim.stat();
 
       autoTimer += dt / 60;
-      const dur = 20;
+      const dur = 22;
       if (S.autorun) {
         const p = activeSim.done ? 1 : Math.max(activeSim.progress || 0, autoTimer / dur);
         $('progf').style.width = `${clamp(p * 100, 0, 100)}%`;
@@ -209,7 +236,7 @@
     activePal = makePalette(S.pal);
 
     $('curName').textContent = cur.name;
-    $('curIdx').textContent = `${idx + 1}/${CATALOG.length}`;
+    $('curIdx').textContent = `${idx + 1} / ${CATALOG.length}`;
     $('modeDot').style.background = activePal.raw[0];
     $('modeDot').style.boxShadow = `0 0 10px ${activePal.raw[0]}`;
     document.documentElement.style.setProperty('--accent', activePal.raw[0]);
@@ -432,6 +459,7 @@
   $('ctrlTop').addEventListener('click', () => toggleDrawer());
   $('drawerClose').addEventListener('click', () => toggleDrawer(false));
   $('surpBtn').addEventListener('click', () => { KA.wake(); surprise(); });
+  $('resetDefBtn').addEventListener('click', resetDefaults);
   $('fsBtn').addEventListener('click', () => {
     try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {}
   });
