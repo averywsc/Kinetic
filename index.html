@@ -186,6 +186,7 @@ body.drawer-open .drawer { transform: translateX(0); }
 }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+#melGrid { max-height: 118px; overflow-y: auto; padding-right: 4px; }
 .chip {
   border: 0; padding: 7px 11px; border-radius: 9px;
   background: var(--surface); color: #d5def0; font-size: 0.8rem; font-weight: 500;
@@ -410,7 +411,7 @@ body.drawer-open .drawer { transform: translateX(0); }
     <div class="cat-head">
       <div>
         <h2>Simulations</h2>
-        <p>35 interactive physics, escape challenge &amp; 3D wave simulations running live.</p>
+        <p id="catSub">35 interactive physics, escape challenge &amp; 3D wave simulations running live.</p>
       </div>
       <button class="sq-btn" id="catClose" type="button" aria-label="Close catalog">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -432,11 +433,11 @@ body.drawer-open .drawer { transform: translateX(0); }
   </div>
 </div>
 
-<script src="textures.js"></script>
-<script src="audio.js"></script>
-<script src="sims-bounce.js"></script>
-<script src="sims-physics.js"></script>
-<script src="sims-escape.js"></script>
-<script src="app.js"></script>
+<script src="textures.js?v=5"></script>
+<script src="audio.js?v=5"></script>
+<script src="sims-bounce.js?v=5"></script>
+<script src="sims-physics.js?v=5"></script>
+<script src="sims-escape.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

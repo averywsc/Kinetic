@@ -9,52 +9,52 @@
   const SIMS = window.KSIMS;
   const $ = id => document.getElementById(id);
 
-  // 35 Curated Satisfying Simulations organized by category
+  // 35 Curated Satisfying Simulations — each with its own signature song & instrument!
   const CATALOG = [
     // Will It Escape?
-    { id: 'freeze_escape', name: 'Freeze & Escape', cat: 'escape', pal: 0, desc: 'Every 3s the ball freezes in place and a new one drops — how long until it escapes?' },
-    { id: 'timed_escape',  name: '15s Escape',      cat: 'escape', pal: 1, desc: 'Can the sphere shatter 16 spinning rings before 15 seconds run out?' },
-    { id: 'narrow_escape', name: 'Closing Gap',     cat: 'escape', pal: 2, desc: 'The exit gap seals tighter every second — will it escape in time?' },
-    { id: 'maze_escape',   name: 'Spinning Maze',   cat: 'escape', pal: 4, desc: 'Navigate 6 rotating concentric walls to escape the labyrinth' },
-    { id: 'gate_escape',   name: 'Orbit Gate',      cat: 'escape', pal: 3, desc: 'Thread the narrow portal past two orbiting guard shields' },
-    { id: 'escape',        name: 'Escape Rings',    cat: 'escape', pal: 1, desc: 'Slip through spinning gaps to shatter 12 metallic rings' },
-    { id: 'shrink',        name: 'Shrink Escape',   cat: 'escape', pal: 4, desc: 'Shrinks each hit to squeeze through tighter and tighter gaps' },
+    { id: 'freeze_escape', name: 'Freeze & Escape', cat: 'escape', pal: 0, melody: 'mountain',   timbre: 'marimba', desc: 'Every 3s the ball freezes in place and a new one drops — how long until it escapes?' },
+    { id: 'timed_escape',  name: '15s Escape',      cat: 'escape', pal: 1, melody: 'carol',      timbre: 'steel',   desc: 'Can the sphere shatter 16 spinning rings before 15 seconds run out?' },
+    { id: 'narrow_escape', name: 'Closing Gap',     cat: 'escape', pal: 2, melody: 'toccata',    timbre: 'piano',   desc: 'The exit gap seals tighter every second — will it escape in time?' },
+    { id: 'maze_escape',   name: 'Spinning Maze',   cat: 'escape', pal: 4, melody: 'bolero',     timbre: 'kalimba', desc: 'Navigate 6 rotating concentric walls to escape the labyrinth' },
+    { id: 'gate_escape',   name: 'Orbit Gate',      cat: 'escape', pal: 3, melody: 'swan',       timbre: 'glass',   desc: 'Thread the narrow portal past two orbiting guard shields' },
+    { id: 'escape',        name: 'Escape Rings',    cat: 'escape', pal: 1, melody: 'turkish',    timbre: 'marimba', desc: 'Slip through spinning gaps to shatter 12 metallic rings' },
+    { id: 'shrink',        name: 'Shrink Escape',   cat: 'escape', pal: 4, melody: 'bumblebee',  timbre: 'kalimba', desc: 'Shrinks each hit to squeeze through tighter and tighter gaps' },
 
     // 3D & Waves
-    { id: 'iso_torus',     name: '3D Vortex Disc',  cat: 'waves',  pal: 1, desc: 'Isometric 3D pedestal with swirling toroidal particle funnel' },
-    { id: 'iso_wave',      name: '3D Wave Slab',    cat: 'waves',  pal: 3, desc: 'Floating 3D sphere matrix morphing between waves and deep funnels' },
-    { id: 'ripples',       name: 'Ripple Tank',     cat: 'waves',  pal: 2, desc: 'Real 2D wave-equation water interference with droplet ASMR' },
-    { id: 'cradle',        name: "Newton's Cradle", cat: 'waves',  pal: 2, desc: 'Brushed steel spheres with crisp elastic clack physics' },
-    { id: 'galton',        name: 'Peg Cascade',     cat: 'waves',  pal: 0, desc: 'Beads plinking down pegs into a Gaussian bell curve' },
-    { id: 'sand',          name: 'Sand Hourglass',  cat: 'waves',  pal: 5, desc: 'Striated rainbow sand cascading over glass baffles' },
-    { id: 'doublepend',    name: 'Chaos Fan',       cat: 'waves',  pal: 5, desc: '12 double pendulums diverging from unison into silk trails' },
-    { id: 'laser',         name: 'Caustic Beam',    cat: 'waves',  pal: 2, desc: 'Sweeping mirror reflections & star-polygon envelopes' },
-    { id: 'gravity',       name: 'Orbital',         cat: 'waves',  pal: 3, desc: 'Comets slingshotting around binary stars' },
-    { id: 'boids',         name: 'Murmuration',     cat: 'waves',  pal: 0, desc: '210 luminous particles flocking in velvet ribbons' },
-    { id: 'cloth',         name: 'Silk Mesh',       cat: 'waves',  pal: 3, desc: 'Interactive Verlet-physics woven tension cloth' },
-    { id: 'epicycle',      name: 'Epicycles',       cat: 'waves',  pal: 4, desc: 'Precision rotating arms tracing sacred geometry' },
+    { id: 'iso_torus',     name: '3D Vortex Disc',  cat: 'waves',  pal: 1, melody: 'gymnopedie', timbre: 'kalimba', desc: 'Isometric 3D pedestal with swirling toroidal particle funnel' },
+    { id: 'iso_wave',      name: '3D Wave Slab',    cat: 'waves',  pal: 3, melody: 'claire',     timbre: 'glass',   desc: 'Floating 3D sphere matrix morphing between waves and deep funnels' },
+    { id: 'ripples',       name: 'Ripple Tank',     cat: 'waves',  pal: 2, melody: 'pentatonic', timbre: 'water',   desc: 'Real 2D wave-equation water interference with droplet ASMR' },
+    { id: 'cradle',        name: "Newton's Cradle", cat: 'waves',  pal: 2, melody: 'bolero',     timbre: 'steel',   desc: 'Brushed steel spheres with crisp elastic clack physics' },
+    { id: 'galton',        name: 'Peg Cascade',     cat: 'waves',  pal: 0, melody: 'prelude',    timbre: 'glass',   desc: 'Beads plinking down pegs into a Gaussian bell curve' },
+    { id: 'sand',          name: 'Sand Hourglass',  cat: 'waves',  pal: 5, melody: 'lydian',     timbre: 'kalimba', desc: 'Striated rainbow sand cascading over glass baffles' },
+    { id: 'doublepend',    name: 'Chaos Fan',       cat: 'waves',  pal: 5, melody: 'moonlight',  timbre: 'piano',   desc: '12 double pendulums diverging from unison into silk trails' },
+    { id: 'laser',         name: 'Caustic Beam',    cat: 'waves',  pal: 2, melody: 'nocturne',   timbre: 'glass',   desc: 'Sweeping mirror reflections & star-polygon envelopes' },
+    { id: 'gravity',       name: 'Orbital',         cat: 'waves',  pal: 3, melody: 'claire',     timbre: 'piano',   desc: 'Comets slingshotting around binary stars' },
+    { id: 'boids',         name: 'Murmuration',     cat: 'waves',  pal: 0, melody: 'lydian',     timbre: 'glass',   desc: '210 luminous particles flocking in velvet ribbons' },
+    { id: 'cloth',         name: 'Silk Mesh',       cat: 'waves',  pal: 3, melody: 'gymnopedie', timbre: 'kalimba', desc: 'Interactive Verlet-physics woven tension cloth' },
+    { id: 'epicycle',      name: 'Epicycles',       cat: 'waves',  pal: 4, melody: 'prelude',    timbre: 'kalimba', desc: 'Precision rotating arms tracing sacred geometry' },
 
     // Rings & Bounce
-    { id: 'grow',          name: 'Grow Ring',       cat: 'bounce', pal: 0, desc: 'Sphere grows on every bounce until finale' },
-    { id: 'tether',        name: 'Tether Web',      cat: 'bounce', pal: 2, desc: 'Every wall bounce weaves a taut glowing string' },
-    { id: 'polygon',       name: 'Polygon Morph',   cat: 'bounce', pal: 3, desc: 'Container gains a vibrating side on every hit' },
-    { id: 'duel',          name: 'Ring Duel',       cat: 'bounce', pal: 5, desc: 'Two rival spheres clash and steal size' },
-    { id: 'paint',         name: 'Paint Ring',      cat: 'bounce', pal: 1, desc: 'Permanent layered ceramic paint strokes' },
+    { id: 'grow',          name: 'Grow Ring',       cat: 'bounce', pal: 0, melody: 'elise',      timbre: 'marimba', desc: 'Sphere grows on every bounce until finale' },
+    { id: 'tether',        name: 'Tether Web',      cat: 'bounce', pal: 2, melody: 'moonlight',  timbre: 'kalimba', desc: 'Every wall bounce weaves a taut glowing string' },
+    { id: 'polygon',       name: 'Polygon Morph',   cat: 'bounce', pal: 3, melody: 'canon',      timbre: 'piano',   desc: 'Container gains a vibrating side on every hit' },
+    { id: 'duel',          name: 'Ring Duel',       cat: 'bounce', pal: 5, melody: 'swan',       timbre: 'steel',   desc: 'Two rival spheres clash and steal size' },
+    { id: 'paint',         name: 'Paint Ring',      cat: 'bounce', pal: 1, melody: 'nocturne',   timbre: 'marimba', desc: 'Permanent layered ceramic paint strokes' },
 
     // Musical & MIDI
-    { id: 'midi',          name: 'MIDI Pads',       cat: 'music',  pal: 0, desc: 'Marble strikes curved acoustic pads playing real songs' },
-    { id: 'squarebounce',  name: 'Rhythm Bounce',   cat: 'music',  pal: 5, desc: 'Beveled cube bouncing down a synced melody canyon' },
-    { id: 'polyrhythm',    name: 'Polyrhythm',      cat: 'music',  pal: 2, desc: '18 concentric arches weaving harmonic standing waves' },
-    { id: 'pendulum',      name: 'Pendulum Wave',   cat: 'music',  pal: 3, desc: '22 phase-locked bobs drifting through double helices' },
-    { id: 'domino',        name: 'Domino Spiral',   cat: 'music',  pal: 4, desc: '144 beveled dominoes cascading in a musical wave' },
+    { id: 'midi',          name: 'MIDI Pads',       cat: 'music',  pal: 0, melody: 'canon',      timbre: 'marimba', desc: 'Marble strikes curved acoustic pads playing real songs' },
+    { id: 'squarebounce',  name: 'Rhythm Bounce',   cat: 'music',  pal: 5, melody: 'ode',        timbre: 'piano',   desc: 'Beveled cube bouncing down a synced melody canyon' },
+    { id: 'polyrhythm',    name: 'Polyrhythm',      cat: 'music',  pal: 2, melody: 'prelude',    timbre: 'kalimba', desc: '18 concentric arches weaving harmonic standing waves' },
+    { id: 'pendulum',      name: 'Pendulum Wave',   cat: 'music',  pal: 3, melody: 'pentatonic', timbre: 'marimba', desc: '22 phase-locked bobs drifting through double helices' },
+    { id: 'domino',        name: 'Domino Spiral',   cat: 'music',  pal: 4, melody: 'spring',     timbre: 'marimba', desc: '144 beveled dominoes cascading in a musical wave' },
 
     // Smash & Merge
-    { id: 'suika',         name: 'Merge Jar',       cat: 'smash',  pal: 5, desc: 'Matching numbered spheres squish-merge into higher tiers' },
-    { id: 'multiply',      name: 'Multiply',        cat: 'smash',  pal: 0, desc: '1 marble splits into 100+ clacking colliding spheres' },
-    { id: 'breaker',       name: 'Ring Breaker',    cat: 'smash',  pal: 1, desc: 'Chrome marbles shatter concentric curved glass rings' },
-    { id: 'slicer',        name: 'Laser Slicer',    cat: 'smash',  pal: 2, desc: 'Sweeping laser blade cleanly halves floating orbs' },
-    { id: 'territory',     name: 'Territory War',   cat: 'smash',  pal: 5, desc: '4 rival teams conquering beveled ceramic tiles' },
-    { id: 'race',          name: 'Marble Race',     cat: 'smash',  pal: 1, desc: '8 glass marbles racing through windmills & funnels' }
+    { id: 'suika',         name: 'Merge Jar',       cat: 'smash',  pal: 5, melody: 'spring',     timbre: 'marimba', desc: 'Matching numbered spheres squish-merge into higher tiers' },
+    { id: 'multiply',      name: 'Multiply',        cat: 'smash',  pal: 0, melody: 'carol',      timbre: 'glass',   desc: 'Spheres drop in through the top gap and multiply into 100+' },
+    { id: 'breaker',       name: 'Ring Breaker',    cat: 'smash',  pal: 1, melody: 'turkish',    timbre: 'steel',   desc: 'Chrome marbles shatter concentric curved glass rings' },
+    { id: 'slicer',        name: 'Laser Slicer',    cat: 'smash',  pal: 2, melody: 'toccata',    timbre: 'glass',   desc: 'Sweeping laser blade cleanly halves floating orbs' },
+    { id: 'territory',     name: 'Territory War',   cat: 'smash',  pal: 5, melody: 'ode',        timbre: 'marimba', desc: '4 rival teams conquering beveled ceramic tiles' },
+    { id: 'race',          name: 'Marble Race',     cat: 'smash',  pal: 1, melody: 'bumblebee',  timbre: 'steel',   desc: '8 glass marbles racing through windmills & funnels' }
   ];
 
   const CATS = [
@@ -85,11 +85,12 @@
     reels: false
   });
 
+  const STORAGE_KEY = 'kinetic:v4';
   const S = Object.assign({}, DEFAULTS);
-  try { Object.assign(S, JSON.parse(localStorage.getItem('kinetic:v3')) || {}); } catch (e) {}
+  try { Object.assign(S, JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}); } catch (e) {}
   S.paused = false;
   if (!SIMS[S.sim]) S.sim = DEFAULTS.sim;
-  const saveState = () => { try { localStorage.setItem('kinetic:v3', JSON.stringify(S)); } catch (e) {} };
+  const saveState = () => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch (e) {} };
 
   /* =========================================================================
      Canvas Pipeline & Subtle Studio Compositor
@@ -110,7 +111,7 @@
     H = cv.height = simC.height = Math.max(2, Math.round(rect.height * dpr));
     bloomC.width = Math.max(2, Math.ceil(W / 5));
     bloomC.height = Math.max(2, Math.ceil(H / 5));
-    startSim(S.sim, false);
+    startSim(S.sim, false, false);
   };
 
   let toastTimer = 0;
@@ -119,47 +120,62 @@
     el.innerHTML = `<strong>${title}</strong><span>${sub}</span>`;
     el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
   };
 
-  const startSim = (id, announce = true) => {
+  const applySimAudio = (item) => {
+    S.pal = item.pal;
+    S.melody = item.melody;
+    S.timbre = item.timbre;
+  };
+
+  const startSim = (id, announce = true, applyPreset = false) => {
     const item = CATALOG.find(x => x.id === id) || CATALOG[0];
     S.sim = item.id;
+    if (applyPreset) applySimAudio(item);
     activePal = makePalette(S.pal);
     activeSim = SIMS[item.id](W, H, { dpr, small: false, audio: true, S });
     autoTimer = 0;
     syncUI();
-    if (announce) showToast(item.name, item.desc);
+    if (announce) {
+      const song = KA.MELODIES.find(m => m.id === S.melody);
+      showToast(item.name, `${item.desc}${song ? ` · ${song.name}` : ''}`);
+    }
   };
 
   const stepSim = (delta) => {
     const idx = CATALOG.findIndex(x => x.id === S.sim);
     const next = CATALOG[mod(idx + delta, CATALOG.length)];
-    S.pal = next.pal;
-    startSim(next.id, true);
+    startSim(next.id, true, true);
   };
 
   const surprise = () => {
     let pick;
     do { pick = CATALOG[(Math.random() * CATALOG.length) | 0]; } while (pick.id === S.sim);
-    S.pal = pick.pal;
-    startSim(pick.id, true);
+    startSim(pick.id, true, true);
   };
 
   const resetDefaults = () => {
     const keepSim = S.sim;
     const curItem = CATALOG.find(x => x.id === keepSim) || CATALOG[0];
     const wasReels = S.reels;
-    Object.assign(S, DEFAULTS, { sim: keepSim, pal: curItem.pal });
-    try { localStorage.removeItem('kinetic:v3'); } catch (e) {}
+    Object.assign(S, DEFAULTS, {
+      sim: curItem.id,
+      pal: curItem.pal,
+      melody: curItem.melody,
+      timbre: curItem.timbre
+    });
+    ['kinetic:v1', 'kinetic:v2', 'kinetic:v3', 'kinetic:v4'].forEach(k => {
+      try { localStorage.removeItem(k); } catch (e) {}
+    });
     syncUI();
     if (wasReels !== S.reels) {
       setTimeout(resize, 50);
       setTimeout(resize, 460);
     } else {
-      startSim(S.sim, false);
+      startSim(S.sim, false, false);
     }
-    showToast('Defaults restored', 'Physics, look, and audio settings reset');
+    showToast('Defaults restored', 'All settings reset to factory defaults');
   };
 
   const frame = now => {
@@ -196,7 +212,7 @@
         $('progf').style.width = `${clamp(p * 100, 0, 100)}%`;
         if (activeSim.done || autoTimer >= dur) stepSim(1);
       } else if (activeSim.done) {
-        startSim(S.sim, false);
+        startSim(S.sim, false, false);
       }
     }
 
@@ -229,6 +245,10 @@
   $('catTabs').innerHTML = CATS.map(([id, label]) =>
     `<button class="ctab" type="button" data-cat="${id}">${label}</button>`
   ).join('');
+
+  if ($('catSub')) {
+    $('catSub').textContent = `${CATALOG.length} interactive physics, escape challenge & 3D wave simulations running live.`;
+  }
 
   const syncUI = () => {
     const idx = CATALOG.findIndex(x => x.id === S.sim);
@@ -437,16 +457,14 @@
     const t = e.target.closest('.tile');
     if (!t) return;
     KA.wake();
-    const item = CATALOG.find(x => x.id === t.dataset.id);
-    if (item) S.pal = item.pal;
-    startSim(t.dataset.id, true);
+    startSim(t.dataset.id, true, true);
     closeCatalog();
   });
 
   $('prevBtn').addEventListener('click', () => { KA.wake(); stepSim(-1); });
   $('nextBtn').addEventListener('click', () => { KA.wake(); stepSim(1); });
   $('playBtn').addEventListener('click', () => { S.paused = !S.paused; syncUI(); });
-  $('rstBtn').addEventListener('click', () => { KA.wake(); startSim(S.sim, false); });
+  $('rstBtn').addEventListener('click', () => { KA.wake(); startSim(S.sim, false, false); });
   $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; if (S.sound) KA.wake(); syncUI(); });
   $('recBarBtn').addEventListener('click', toggleRec);
   $('recDrawerBtn').addEventListener('click', toggleRec);
@@ -503,7 +521,7 @@
     poke();
     if (e.key === 'Escape') { closeCatalog(); $('modal').hidden = true; $('mvid').pause(); toggleDrawer(false); }
     else if (e.key === ' ') { e.preventDefault(); S.paused = !S.paused; syncUI(); }
-    else if (e.key === 'r' || e.key === 'R') { KA.wake(); startSim(S.sim, false); }
+    else if (e.key === 'r' || e.key === 'R') { KA.wake(); startSim(S.sim, false, false); }
     else if (e.key === 'g' || e.key === 'G') { $('catalog').hidden ? openCatalog() : closeCatalog(); }
     else if (e.key === 'c' || e.key === 'C') toggleDrawer();
     else if (e.key === 'm' || e.key === 'M') $('sndBtn').click();
@@ -523,6 +541,9 @@
   syncUI();
   resize();
   const initial = CATALOG.find(x => x.id === S.sim) || CATALOG[0];
-  setTimeout(() => showToast(initial.name, initial.desc), 400);
+  setTimeout(() => {
+    const song = KA.MELODIES.find(m => m.id === S.melody);
+    showToast(initial.name, `${initial.desc}${song ? ` · ${song.name}` : ''}`);
+  }, 400);
   requestAnimationFrame(frame);
 })();

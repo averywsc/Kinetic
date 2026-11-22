@@ -876,25 +876,51 @@
     };
   };
 
-  /* --- 9. MULTIPLY --- */
+  /* --- 9. MULTIPLY (Drop-in through Top Gap!) --- */
   SIMS.multiply = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
-    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.41;
+    const cx = w / 2, cy = h * 0.56, R = Math.min(w, h) * 0.37;
     const fx = makeFX(small);
     const CAP = small ? 34 : 105;
-    const br = R * (small ? 0.058 : 0.044);
-    let balls = [], bounceCount = 0, noteI = 0, fullT = 0, done = false;
+    const br = R * (small ? 0.056 : 0.044);
+    const gapAng = -Math.PI * 0.5;
+    const gapW = 0.50; // crisp top opening (~28.6 deg)
+    const gapHalfX = Math.sin(gapW * 0.5) * R;
+    const rimTopY = cy - Math.cos(gapW * 0.5) * R;
 
-    const addBall = (x, y, vx, vy, hue) => {
+    let balls = [], pending = 1, dropCD = 0, bounceCount = 0, noteI = 0, hueI = 0, fullT = 0, done = false, ringPulse = 0;
+
+    const spawnFromTop = () => {
       if (balls.length >= CAP) return;
-      balls.push({ x, y, vx, vy, r: br, hue, trail: [] });
+      const spread = gapHalfX * 0.38;
+      hueI = (hueI + 0.065) % 1;
+      balls.push({
+        x: cx + (Math.random() - 0.5) * spread * 2,
+        y: cy - R - br * 2.8 - Math.random() * br * 1.4,
+        vx: (Math.random() - 0.5) * R * 0.008,
+        vy: R * 0.006,
+        r: br,
+        hue: hueI,
+        inside: false,
+        trail: []
+      });
     };
-    addBall(cx + R * 0.14, cy - R * 0.28, R * 0.017, -R * 0.008, 0.05);
+
+    const queueDrops = (n) => {
+      const room = Math.max(0, CAP - balls.length - pending);
+      pending += Math.min(n, room);
+    };
+
+    // Drop the very first ball cleanly from above the top gap!
+    spawnFromTop();
+    pending = 0;
 
     return {
       step(dt, t, ptr, pal) {
         fx.step(dt);
-        if (balls.length >= CAP) {
+        ringPulse *= Math.pow(0.86, dt);
+
+        if (balls.length >= CAP && pending <= 0) {
           fullT += dt / 60;
           if (fullT > 2.4 && balls.length) {
             fx.burst(cx, cy, pal.col(0.4, 0.9), 58, R * 0.032, 2.8);
@@ -904,38 +930,87 @@
           if (fullT > 3.7) done = true;
           return;
         }
-        const sub = 4, sdt = dt * S.speed / sub;
-        const g = 0.22 * S.grav * (R / 260), maxSpd = R * 0.042;
+
+        // Release queued balls smoothly through the top gap
+        dropCD -= (dt / 60) * S.speed;
+        if (pending > 0 && dropCD <= 0 && balls.length < CAP) {
+          spawnFromTop();
+          pending--;
+          dropCD = balls.length > 30 ? 0.07 : 0.14;
+        }
+
+        const sub = 5, sdt = dt * S.speed / sub;
+        const g = 0.25 * Math.max(0.25, S.grav) * (R / 260), maxSpd = R * 0.045;
         const tLen = Math.round(4 + S.trail * 0.16);
 
         for (let s = 0; s < sub; s++) {
-          const toAdd = [];
-          for (const b of balls) {
-            b.vy += g * sdt; b.x += b.vx * sdt; b.y += b.vy * sdt;
+          for (let i = balls.length - 1; i >= 0; i--) {
+            const b = balls[i];
+            b.vy += g * sdt;
+            b.x += b.vx * sdt;
+            b.y += b.vy * sdt;
+
             const dx = b.x - cx, dy = b.y - cy, dist = Math.hypot(dx, dy);
+            const ang = Math.atan2(dy, dx);
+            const diffTop = Math.abs(Math.atan2(Math.sin(ang - gapAng), Math.cos(ang - gapAng)));
+            const inTopGap = diffTop < gapW * 0.5 - (b.r / R) * 0.25;
+
+            if (!b.inside) {
+              // Funnel guide walls above top gap keep incoming balls entering cleanly
+              if (b.y < rimTopY) {
+                const fH = Math.max(0, rimTopY - b.y);
+                const maxX = gapHalfX - b.r + fH * 0.42;
+                if (b.x < cx - maxX) { b.x = cx - maxX; b.vx = Math.abs(b.vx) * 0.6 + 0.2; }
+                else if (b.x > cx + maxX) { b.x = cx + maxX; b.vx = -Math.abs(b.vx) * 0.6 - 0.2; }
+              }
+              // Once cleanly inside the ring
+              if (dist < R - b.r * 1.15) {
+                b.inside = true;
+                // Gentle sideways nudge so balls bounce lively instead of straight down-up
+                b.vx += (Math.random() < 0.5 ? -1 : 1) * R * 0.008;
+                fx.wave(b.x, b.y, pal.col(b.hue, 0.8), 3, R * 0.09, 1.5, 0.4);
+                if (audio) KA.playMelodyStep(noteI++, 0, 0.42, { rate: 28 });
+              }
+              continue;
+            }
+
+            // Inside the ring: check if it escapes back out the top gap -> doubles!
+            if (inTopGap && dist > R + b.r * 0.55) {
+              fx.burst(b.x, b.y, pal.col(b.hue, 0.95), 8, R * 0.015, 2);
+              fx.wave(cx, cy - R, pal.col(b.hue, 0.9), 4, R * 0.16, 2, 0.55);
+              if (audio) KA.playChord((noteI++) % 7, 0.52);
+              balls.splice(i, 1);
+              queueDrops(2);
+              continue;
+            }
+
+            // Otherwise bounce off the ring wall
             const lim = R - b.r;
-            if (dist >= lim && dist > 0.001) {
+            if (!inTopGap && dist >= lim && dist < R + b.r * 1.3 && dist > 0.001) {
               const nx = dx / dist, ny = dy / dist;
               b.x = cx + nx * lim; b.y = cy + ny * lim;
               const dot = b.vx * nx + b.vy * ny;
               if (dot > 0) {
-                b.vx = (b.vx - 2 * dot * nx) * clamp(S.bounce, 0.92, 1.02);
-                b.vy = (b.vy - 2 * dot * ny) * clamp(S.bounce, 0.92, 1.02);
+                const e = clamp(S.bounce, 0.94, 1.025);
+                b.vx = (b.vx - 2 * dot * nx) * e;
+                b.vy = (b.vy - 2 * dot * ny) * e;
                 const sp = Math.hypot(b.vx, b.vy);
                 if (sp > maxSpd) { b.vx *= maxSpd / sp; b.vy *= maxSpd / sp; }
                 bounceCount++;
-                fx.rim(cx, cy, R, Math.atan2(ny, nx), pal.col(b.hue, 0.85), 0.22, 0.6);
-                if (audio) KA.playMelodyStep(noteI++, nx * 0.75, 0.5, { rate: 28 });
-                const every = balls.length < 8 ? 1 : balls.length < 28 ? 3 : 7;
-                if (bounceCount % every === 0 && balls.length + toAdd.length < CAP) {
-                  const a = Math.atan2(b.vy, b.vx) + (Math.random() < 0.5 ? 0.42 : -0.42);
-                  const nsp = Math.max(R * 0.015, sp * 0.95);
-                  toAdd.push([b.x - nx * 2, b.y - ny * 2, Math.cos(a) * nsp, Math.sin(a) * nsp, (b.hue + 0.08) % 1]);
+                ringPulse = 0.65;
+                fx.rim(cx, cy, R, ang, pal.col(b.hue, 0.85), 0.2, 0.55);
+                if (audio) KA.playMelodyStep(noteI++, nx * 0.72, 0.48, { rate: 28 });
+
+                // Queue fresh balls to drop in through the top gap on bounce milestones!
+                const every = balls.length < 6 ? 2 : balls.length < 24 ? 4 : 8;
+                if (bounceCount % every === 0 && balls.length + pending < CAP) {
+                  queueDrops(balls.length < 16 ? 1 : 2);
                 }
               }
             }
           }
-          for (const a of toAdd) addBall(...a);
+
+          // Elastic ball-ball collisions
           for (let i = 0; i < balls.length; i++) {
             const a = balls[i];
             for (let j = i + 1; j < balls.length; j++) {
@@ -945,9 +1020,9 @@
                 a.x -= nx * ov; a.y -= ny * ov; b.x += nx * ov; b.y += ny * ov;
                 const vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
                 if (vn < 0) {
-                  const imp = -vn * 0.96;
+                  const imp = -vn * 0.94;
                   a.vx -= imp * nx; a.vy -= imp * ny; b.vx += imp * nx; b.vy += imp * ny;
-                  if (audio && balls.length < 36 && Math.abs(vn) > 2.5) KA.playClack((a.x / w - 0.5) * 1.4, 0.32, 1.35);
+                  if (audio && balls.length < 36 && Math.abs(vn) > 2.4) KA.playClack((a.x / w - 0.5) * 1.4, 0.3, 1.32);
                 }
               }
             }
@@ -957,7 +1032,27 @@
       },
       draw(c, t, pal) {
         fillStudioBg(c, w, h, pal, 0.05);
-        drawStudioRing(c, cx, cy, R, dpr, pal, (t * 0.00005) % 1, 0, 0, TAU, !small);
+
+        // Ring with open gap at the very top
+        const a0 = gapAng + gapW * 0.5, a1 = gapAng + TAU - gapW * 0.5;
+        drawStudioRing(c, cx, cy, R, dpr, pal, (t * 0.00005) % 1, ringPulse * 0.5, a0, a1, false);
+
+        // Crisp subtle funnel rails above the top gap
+        const lx = cx - gapHalfX, rx = cx + gapHalfX;
+        const fH = R * 0.24, flare = R * 0.11;
+        c.save();
+        c.strokeStyle = 'rgba(255,255,255,0.28)';
+        c.lineWidth = 2.4 * dpr;
+        c.lineCap = 'round';
+        c.beginPath();
+        c.moveTo(lx - flare, rimTopY - fH); c.lineTo(lx, rimTopY);
+        c.moveTo(rx + flare, rimTopY - fH); c.lineTo(rx, rimTopY);
+        c.stroke();
+        // Top gap rim pins
+        c.fillStyle = pal.col(0.08, 0.95);
+        c.beginPath(); c.arc(lx, rimTopY, 3 * dpr, 0, TAU); c.arc(rx, rimTopY, 3 * dpr, 0, TAU); c.fill();
+        c.restore();
+
         for (const b of balls) {
           if (S.trail > 8 && balls.length < 55) drawSilkTrail(c, b.trail, pal, b.hue, b.r * 1.0, 0.28);
           drawSphere(c, b.x, b.y, b.r, pal, b.hue, S.material, false);
@@ -965,16 +1060,13 @@
         fx.draw(c, dpr);
       },
       interact(type, x, y, pal) {
-        if (type === 'down' && balls.length < CAP) {
-          for (let k = 0; k < 4; k++) {
-            const a = Math.random() * TAU;
-            addBall(cx + (x - cx) * 0.5, cy + (y - cy) * 0.5, Math.cos(a) * R * 0.02, Math.sin(a) * R * 0.02, Math.random());
-          }
-          fx.wave(x, y, pal.col(0.5, 0.8), 5, R * 0.14, 1.8, 0.5);
-          if (audio) KA.playClack(0, 0.7, 1.2);
+        if (type === 'down' && balls.length + pending < CAP) {
+          queueDrops(3);
+          fx.wave(cx, rimTopY, pal.col(0.3, 0.8), 5, R * 0.14, 1.8, 0.5);
+          if (audio) KA.playClack(0, 0.65, 1.25);
         }
       },
-      stat() { return `${balls.length}/${CAP} spheres`; },
+      stat() { return `${balls.length}/${CAP} · Top drop`; },
       get done() { return done; },
       get progress() { return clamp(balls.length / CAP, 0, 1); }
     };

@@ -1,7 +1,7 @@
 /* ============================================================================
    Kinetic — Studio ASMR & Melodic Physics Audio Engine
-   Multi-layered transient foley + 6 tactile instruments + 6 recognizable
-   MIDI melodies + studio room reverb + WebM recording audio tap.
+   18 recognizable public-domain songs & arpeggio suites + 6 tactile
+   instruments + layered physical foley + WebM recording stream tap.
    ============================================================================ */
 (() => {
   'use strict';
@@ -18,50 +18,79 @@
     ['water',   'Droplet']
   ];
 
-  // Exact MIDI note numbers for iconic viral satisfying-video melodies!
+  // 18 distinct recognizable songs & musical suites (MIDI note numbers)
   const MELODIES = [
     {
-      id: 'pentatonic', name: 'Pentatonic',
-      notes: [60, 62, 64, 67, 69, 72, 74, 76, 74, 72, 69, 67, 64, 67, 69, 72, 76, 79, 76, 72, 69, 67, 64, 62]
-    },
-    {
       id: 'mountain', name: 'Mountain King',
-      notes: [
-        59, 61, 62, 64, 66, 62, 66, 65, 61, 65, 64, 60, 64,
-        59, 61, 62, 64, 66, 62, 66, 71, 69, 66, 62, 66, 69,
-        66, 68, 69, 71, 73, 69, 73, 72, 68, 72, 71, 68, 71
-      ]
+      notes: [59,61,62,64,66,62,66, 65,61,65, 64,60,64, 59,61,62,64,66,62,66, 71,69,66,62,66,69, 66,68,69,71,73,69,73, 72,68,72, 71,68,71]
     },
     {
       id: 'elise', name: 'Für Elise',
-      notes: [
-        76, 75, 76, 75, 76, 71, 74, 72, 69,
-        60, 64, 69, 71, 64, 68, 71, 72,
-        64, 76, 75, 76, 75, 76, 71, 74, 72, 69,
-        60, 64, 69, 71, 64, 72, 71, 69
-      ]
+      notes: [76,75,76,75,76,71,74,72,69, 60,64,69,71, 64,68,71,72, 64,76,75,76,75,76,71,74,72,69, 60,64,69,71, 64,72,71,69]
     },
     {
       id: 'canon', name: 'Canon in D',
-      notes: [
-        78, 76, 74, 73, 71, 69, 71, 73,
-        74, 73, 71, 69, 67, 66, 67, 69,
-        62, 66, 69, 67, 66, 62, 66, 64,
-        62, 59, 62, 69, 67, 71, 69, 67
-      ]
+      notes: [78,76,74,73,71,69,71,73, 74,73,71,69,67,66,67,69, 62,66,69,67,66,62,66,64, 62,59,62,69,67,71,69,67]
     },
     {
       id: 'turkish', name: 'Turkish March',
-      notes: [
-        71, 69, 68, 69, 72,
-        74, 72, 71, 72, 76,
-        77, 76, 75, 76, 83, 81, 80, 81, 83, 81, 80, 81, 84,
-        81, 84, 79, 81, 78, 79, 81, 79, 78, 79, 81, 79, 78, 79, 76
-      ]
+      notes: [71,69,68,69,72, 74,72,71,72,76, 77,76,75,76,83,81,80,81,83,81,80,81,84, 81,84,79,81,78,79,81,79,78,79,81,79,78,79,76]
+    },
+    {
+      id: 'moonlight', name: 'Moonlight',
+      notes: [56,61,64, 56,61,64, 56,61,64, 56,61,64, 57,61,64, 57,62,66, 56,60,66, 56,61,64, 56,60,63, 56,61,64]
+    },
+    {
+      id: 'prelude', name: 'Bach Prelude',
+      notes: [60,64,67,72,76,67,72,76, 60,62,69,74,77,69,74,77, 59,62,67,74,77,67,74,77, 60,64,67,72,76,67,72,76, 60,64,69,76,81,69,76,81]
+    },
+    {
+      id: 'carol', name: 'Carol of Bells',
+      notes: [70,69,70,67, 70,69,70,67, 70,69,70,67, 74,72,70,69, 70,69,70,67, 75,74,72,70, 74,72,70,69, 67,69,70,72]
+    },
+    {
+      id: 'claire', name: 'Clair de Lune',
+      notes: [77,73,70,73, 75,73,75,73,70, 72,70,72,70,68, 70,68,70,68,65, 68,65,63,65,68,70,73,77]
+    },
+    {
+      id: 'ode', name: 'Ode to Joy',
+      notes: [64,64,65,67, 67,65,64,62, 60,60,62,64, 64,62,62, 64,64,65,67, 67,65,64,62, 60,60,62,64, 62,60,60]
+    },
+    {
+      id: 'swan', name: 'Swan Lake',
+      notes: [76,69,71,72,74,76,72,76, 72,76,69,72,69,65,72,69, 74,72,71,76,69,71,72,74,76,72,76,72,76]
+    },
+    {
+      id: 'spring', name: 'Vivaldi Spring',
+      notes: [64,68,68,68,66,64,71, 71,69,68,68,68,66,64,71, 71,69,68,69,71,69,68,66,64, 68,71,73,71,69,68,66]
+    },
+    {
+      id: 'gymnopedie', name: 'Gymnopédie',
+      notes: [66,69,67,66,61,59,61,62,57, 66,69,67,66,61,59,61,62,69, 71,73,74,76,74,73,71,69]
+    },
+    {
+      id: 'nocturne', name: 'Nocturne',
+      notes: [70,79,77,79,77,75, 70,79,80,79,77,75, 72,79,77,75,74,75, 70,72,74,75,77,79]
+    },
+    {
+      id: 'toccata', name: 'Toccata',
+      notes: [81,79,81,79,77,76,74,73,74, 69,67,69,67,65,64,62,61,62, 69,72,76,79,81,79,76,72,74]
+    },
+    {
+      id: 'bumblebee', name: 'Bumblebee',
+      notes: [76,75,74,73,76,75,74,73, 72,71,70,69,72,71,70,69, 76,75,74,73,77,76,75,74, 79,78,77,76,81,80,79,78]
+    },
+    {
+      id: 'bolero', name: 'Boléro',
+      notes: [72,71,72,74,72,71,69,72,72, 69,72,71,72,69,67,64,65,67, 67,65,64,62,64,65,67,69,67]
+    },
+    {
+      id: 'pentatonic', name: 'Zen Flow',
+      notes: [60,62,64,67,69,72,74,76,74,72,69,67,64,67,69,72,76,79,76,72,69,67,64,62]
     },
     {
       id: 'lydian', name: 'Dream Lydian',
-      notes: [62, 66, 69, 73, 74, 78, 81, 78, 74, 73, 69, 66, 64, 68, 71, 74, 76, 74, 71, 68]
+      notes: [62,66,69,73,74,78,81,78,74,73,69,66,64,68,71,74,76,74,71,68]
     }
   ];
 
@@ -78,7 +107,7 @@
   let AC = null, mg = null, comp = null, rv = null, dl = null, recDest = null;
   let noiseBuf = null;
   let recent = [];
-  let cfg = { sound: true, vol: 65, timbre: 'marimba', melody: 'pentatonic', pal: 0 };
+  let cfg = { sound: true, vol: 68, timbre: 'marimba', melody: 'mountain', pal: 0 };
 
   const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
   const scaleMidi = (deg, pi = cfg.pal) => {
@@ -111,27 +140,21 @@
       comp.connect(recDest);
     }
 
-    // Crisp warm studio room reverb (1.9s tailored decay)
     const len = Math.floor(AC.sampleRate * 1.9);
     const ir = AC.createBuffer(2, len, AC.sampleRate);
     for (let ch = 0; ch < 2; ch++) {
       const d = ir.getChannelData(ch);
-      for (let i = 0; i < len; i++) {
-        const env = Math.pow(1 - i / len, 3.2);
-        d[i] = (Math.random() * 2 - 1) * env * 0.52;
-      }
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2) * 0.52;
     }
     rv = AC.createConvolver(); rv.buffer = ir;
     const rg = AC.createGain(); rg.gain.value = 0.34;
     rv.connect(rg); rg.connect(mg);
 
-    // Subtle acoustic stereo echo
     dl = AC.createDelay(1.0); dl.delayTime.value = 0.24;
     const fb = AC.createGain(); fb.gain.value = 0.2;
     const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
     dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(rv);
 
-    // Short noise burst buffer for tactile mallet/wood/glass transients
     const nlen = Math.floor(AC.sampleRate * 0.25);
     noiseBuf = AC.createBuffer(1, nlen, AC.sampleRate);
     const nd = noiseBuf.getChannelData(0);
@@ -163,7 +186,6 @@
     }
   }
 
-  // Tactile wood/mallet micro-transient click layered on top of notes
   function malletClick(at, freq, pan, vel) {
     if (!noiseBuf) return;
     const src = AC.createBufferSource(); src.buffer = noiseBuf;
@@ -203,7 +225,7 @@
     if (tim === 'marimba') {
       o1.type = 'sine'; o2.type = 'sine';
       o1.frequency.setValueAtTime(f, now);
-      o2.frequency.setValueAtTime(f * 3.98, now); // real rosewood 4th harmonic
+      o2.frequency.setValueAtTime(f * 3.98, now);
       g2.gain.setValueAtTime(0.22, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
       fil.frequency.setValueAtTime(3800, now);
       dec = 0.36; peak = 0.2 * v;
@@ -259,23 +281,33 @@
     return midi;
   }
 
+  // Plays either a song note (when sequential) or song-derived pitch so EVERY sim has its own song!
   function playScale(deg, pan = 0, vel = 0.65, opts = {}) {
+    const mel = MELODIES.find(m => m.id === cfg.melody);
+    if (mel && opts.useSong !== false) {
+      // Map degree into unique sorted pitch classes of the current song so each mode sounds like its own song!
+      const uniq = Array.from(new Set(mel.notes.map(n => mod(n, 12)))).sort((a, b) => a - b);
+      const root = Math.min(...mel.notes);
+      const oct = Math.floor(deg / uniq.length);
+      const pc = uniq[mod(deg, uniq.length)];
+      const baseOct = Math.floor(root / 12) * 12;
+      playMidi(clamp(baseOct + pc + oct * 12, 45, 92), pan, vel, opts);
+      return;
+    }
     playMidi(scaleMidi(deg), pan, vel, opts);
   }
 
   function playChord(baseDeg = 0, vel = 0.72, timbre = 'glass') {
     if (!AC || AC.state !== 'running' || !cfg.sound) return;
     [0, 2, 4, 7].forEach((off, i) => {
-      playMidi(scaleMidi(baseDeg + off), (i - 1.5) * 0.34, vel * 0.65, { delay: i * 0.042, rate: 64, timbre });
+      playScale(baseDeg + off, (i - 1.5) * 0.34, vel * 0.65, { delay: i * 0.042, rate: 64, timbre });
     });
   }
 
-  // Ultra-crisp physical clack (Newton's cradle, marble collisions, dominoes)
   function playClack(pan = 0, vel = 0.75, pitch = 1) {
     if (!gate(36)) return;
     const now = AC.currentTime;
     const v = clamp(vel, 0.1, 1.1);
-    // Sharp metallic/ceramic impulse + damped body ring
     malletClick(now, 1800 * pitch, pan, v * 1.45);
     const o = AC.createOscillator(), g = AC.createGain();
     o.type = 'sine';
@@ -289,7 +321,6 @@
     o.start(now); o.stop(now + 0.075);
   }
 
-  // Authentic upward-chirp water droplet bloop
   function playWaterDrop(pan = 0, pitch = 1, vel = 0.68, at = null) {
     if (!at && !gate(26)) return;
     if (!AC || AC.state !== 'running' || !cfg.sound) return;
@@ -307,7 +338,6 @@
     o.start(now); o.stop(now + 0.15);
   }
 
-  // Juicy squish-pop merge sound (Suika / growth burst)
   function playMerge(tier = 0, pan = 0) {
     if (!gate(32)) return;
     const now = AC.currentTime;
@@ -325,7 +355,6 @@
     playScale(tier + 2, pan, 0.55, { delay: 0.03, timbre: 'marimba' });
   }
 
-  // Clean crystalline slice zing (Laser Slicer)
   function playSlice(pan = 0, pitch = 1) {
     if (!gate(26)) return;
     const now = AC.currentTime;
