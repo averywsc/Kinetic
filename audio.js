@@ -370,11 +370,50 @@
     o.start(now); o.stop(now + 0.13);
   }
 
+  // Warm low-end acoustic thump for heavy impacts, merges, and shatters
+  function playSub(vel = 0.6, freq = 105) {
+    if (!AC || AC.state !== 'running' || !cfg.sound) return;
+    const now = AC.currentTime;
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq, now);
+    o.frequency.exponentialRampToValueAtTime(42, now + 0.14);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.18 * clamp(vel, 0.1, 1.1), now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    o.connect(g); g.connect(mg);
+    o.start(now); o.stop(now + 0.2);
+  }
+
+  // Crisp rising metallic ping when a ball barely grazes the lip of an escape gap!
+  function playNearMiss(pan = 0) {
+    if (!gate(24)) return;
+    const now = AC.currentTime;
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(880, now);
+    o.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.11, now + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    o.connect(g);
+    route(g, pan, true, true);
+    o.start(now); o.stop(now + 0.2);
+  }
+
+  // Soft tactile wood-tick for countdown warnings
+  function playTick(urgent = false) {
+    if (!gate(20)) return;
+    const now = AC.currentTime;
+    malletClick(now, urgent ? 2400 : 1400, 0, urgent ? 0.9 : 0.45);
+  }
+
   window.KA = {
     TIMBRES, MELODIES,
     wake, setConfig,
     playMidi, playMelodyStep, playScale, playChord,
     playClack, playWaterDrop, playMerge, playSlice,
+    playSub, playNearMiss, playTick,
     getStream: () => recDest ? recDest.stream : null
   };
 })();

@@ -1,5 +1,5 @@
 /* ============================================================================
-   Kinetic — Harmonic, Tactile ASMR & Generative Physics Sims (14 Modes)
+   Kinetic — Harmonic, Tactile ASMR & Generative Physics Sims (14 Upgraded)
    ============================================================================ */
 (() => {
   'use strict';
@@ -8,7 +8,7 @@
   const KA = window.KA;
   const SIMS = window.KSIMS || (window.KSIMS = {});
 
-  /* --- 15. POLYRHYTHM ARCHES --- */
+  /* --- 15. POLYRHYTHM ARCHES (With luminous strike pillars!) --- */
   SIMS.polyrhythm = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const cx = w / 2, baseY = h * 0.72, R = Math.min(w * 0.44, h * 0.55);
@@ -16,7 +16,7 @@
     const N = small ? 10 : 18;
     const orbs = Array.from({ length: N }, (_, i) => {
       const f = i / (N - 1);
-      return { r: lerp(R * 0.16, R, f), freq: 0.54 + (N - 1 - i) * 0.04, phase: 0, flash: 0, hue: f * 0.9, x: cx, y: baseY, trail: [] };
+      return { r: lerp(R * 0.16, R, f), freq: 0.54 + (N - 1 - i) * 0.04, phase: 0, flash: 0, hitSide: 1, hue: f * 0.9, x: cx, y: baseY, trail: [] };
     });
     let simT = 0, hits = 0;
 
@@ -35,17 +35,15 @@
           o.x = cx + Math.cos(ang) * o.r;
           o.y = baseY - Math.sin(ang) * o.r;
           o.flash *= Math.pow(0.87, dt);
-          o.trail.push([o.x, o.y]);
-          while (o.trail.length > tLen) o.trail.shift();
+          o.trail.push([o.x, o.y]); while (o.trail.length > tLen) o.trail.shift();
 
           if (curC > prevC) {
             o.flash = 1; hits++;
-            const side = curC % 2 === 1 ? -1 : 1;
-            const hx = cx + side * o.r;
-            const col = pal.col(o.hue, 0.9);
+            o.hitSide = curC % 2 === 1 ? -1 : 1;
+            const hx = cx + o.hitSide * o.r, col = pal.col(o.hue, 0.9);
             fx.wave(hx, baseY, col, 3, R * 0.1, 1.8, 0.55);
-            fx.burst(hx, baseY, col, 5, R * 0.011, 1.9);
-            if (audio) KA.playScale(N - 1 - i, side * (o.r / R) * 0.78, 0.56, { rate: 38 });
+            fx.burstDir(hx, baseY, 0, 1, col, 5, R * 0.012, 1.9);
+            if (audio) KA.playScale(N - 1 - i, o.hitSide * (o.r / R) * 0.78, 0.56, { rate: 38 });
           }
         }
       },
@@ -55,12 +53,20 @@
           c.strokeStyle = pal.col(o.hue, 0.14 + o.flash * 0.44);
           c.lineWidth = (1.2 + o.flash * 2) * dpr;
           c.beginPath(); c.arc(cx, baseY, o.r, Math.PI, TAU); c.stroke();
+          // Vertical harmonic strike pillar blooming from baseline!
+          if (o.flash > 0.06) {
+            const hx = cx + o.hitSide * o.r, ph = R * 0.24 * o.flash;
+            const pg = c.createLinearGradient(0, baseY, 0, baseY - ph);
+            pg.addColorStop(0, pal.col(o.hue, o.flash * 0.42));
+            pg.addColorStop(1, 'rgba(0,0,0,0)');
+            c.fillStyle = pg;
+            c.fillRect(hx - 3 * dpr, baseY - ph, 6 * dpr, ph);
+          }
         }
-        // Brushed acoustic baseline bar
-        c.fillStyle = 'rgba(255,255,255,0.16)';
+        c.fillStyle = 'rgba(255,255,255,0.18)';
         c.fillRect(cx - R * 1.04, baseY - 1.5 * dpr, R * 2.08, 3 * dpr);
 
-        c.strokeStyle = 'rgba(255,255,255,0.18)'; c.lineWidth = 1.2 * dpr;
+        c.strokeStyle = 'rgba(255,255,255,0.2)'; c.lineWidth = 1.2 * dpr;
         c.beginPath(); orbs.forEach((o, i) => i ? c.lineTo(o.x, o.y) : c.moveTo(o.x, o.y)); c.stroke();
 
         const orbR = Math.max(3.4 * dpr, R / (N * 2.15));
@@ -77,7 +83,7 @@
     };
   };
 
-  /* --- 16. PENDULUM WAVE --- */
+  /* --- 16. PENDULUM WAVE (With luminous nadir nodes!) --- */
   SIMS.pendulum = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const fx = makeFX(small);
@@ -99,18 +105,16 @@
 
         for (let i = 0; i < N; i++) {
           const b = bobs[i];
-          const s = Math.sin(simT * b.freq * TAU);
-          const ang = s * amp;
+          const s = Math.sin(simT * b.freq * TAU), ang = s * amp;
           b.x = leftX + b.f * spanX + Math.sin(ang) * (b.len * 0.45);
           b.y = topY + Math.cos(ang) * b.len;
-          b.flash *= Math.pow(0.87, dt);
-          b.trail.push([b.x, b.y]);
-          while (b.trail.length > tLen) b.trail.shift();
+          b.flash *= Math.pow(0.86, dt);
+          b.trail.push([b.x, b.y]); while (b.trail.length > tLen) b.trail.shift();
 
           const sign = s >= 0 ? 1 : -1;
           if (sign !== b.lastSign) {
             b.lastSign = sign; b.flash = 1;
-            fx.wave(b.x, b.y, pal.col(b.f, 0.85), 3, 24 * dpr, 1.6, 0.45);
+            fx.wave(b.x, b.y, pal.col(b.f, 0.85), 3, 26 * dpr, 1.6, 0.48);
             if (audio) KA.playScale(i, (b.f - 0.5) * 1.5, 0.42, { rate: 36 });
           }
         }
@@ -119,16 +123,25 @@
         fillStudioBg(c, w, h, pal, 0.05);
         c.strokeStyle = 'rgba(255,255,255,0.22)'; c.lineWidth = 2.5 * dpr;
         c.beginPath(); c.moveTo(leftX - 16 * dpr, topY); c.lineTo(leftX + spanX + 16 * dpr, topY); c.stroke();
+        // Subtle diagonal nadir baseline showing unison crossing line
+        c.strokeStyle = 'rgba(255,255,255,0.06)'; c.lineWidth = 1.2 * dpr;
+        c.beginPath(); c.moveTo(leftX, topY + bobs[0].len); c.lineTo(leftX + spanX, topY + bobs[N - 1].len); c.stroke();
+
         for (const b of bobs) {
-          c.strokeStyle = pal.col(b.f, 0.16 + b.flash * 0.34); c.lineWidth = 1.1 * dpr;
-          c.beginPath(); c.moveTo(leftX + b.f * spanX, topY); c.lineTo(b.x, b.y); c.stroke();
+          const ax = leftX + b.f * spanX;
+          c.strokeStyle = pal.col(b.f, 0.16 + b.flash * 0.36); c.lineWidth = 1.1 * dpr;
+          c.beginPath(); c.moveTo(ax, topY); c.lineTo(b.x, b.y); c.stroke();
+          if (b.flash > 0.08) {
+            c.fillStyle = pal.col(b.f, b.flash * 0.8);
+            c.beginPath(); c.arc(ax, topY + b.len, (2.2 + b.flash * 3) * dpr, 0, TAU); c.fill();
+          }
         }
         c.strokeStyle = 'rgba(255,255,255,0.26)'; c.lineWidth = 1.4 * dpr;
         c.beginPath(); bobs.forEach((b, i) => i ? c.lineTo(b.x, b.y) : c.moveTo(b.x, b.y)); c.stroke();
         const r = Math.max(4.2 * dpr, Math.min(w, h) * 0.0185);
         for (const b of bobs) {
           if (S.trail > 5) drawSilkTrail(c, b.trail, pal, b.f, r * 0.95, 0.28);
-          drawSphere(c, b.x, b.y, r * (1 + b.flash * 0.3), pal, b.f, S.material, true);
+          drawSphere(c, b.x, b.y, r * (1 + b.flash * 0.32), pal, b.f, S.material, true);
         }
         fx.draw(c, dpr);
       },
@@ -139,21 +152,18 @@
     };
   };
 
-  /* --- 17. NEWTON'S CRADLE (Hyper-tactile Chrome/Glass Steel Clack ASMR!) --- */
+  /* --- 17. NEWTON'S CRADLE (With live specular floor reflections!) --- */
   SIMS.cradle = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const fx = makeFX(small);
     const N = small ? 5 : 7;
     const r = Math.min(w, h) * (small ? 0.056 : 0.044);
-    const len = Math.min(w, h) * 0.42;
-    const topY = h * 0.22;
+    const len = Math.min(w, h) * 0.42, topY = h * 0.21;
     const startX = w / 2 - (N - 1) * r;
     const balls = Array.from({ length: N }, (_, i) => ({
       px: startX + i * r * 2,
       a: i === 0 ? -0.78 : (i === 1 && !small ? -0.78 : 0),
-      w: 0,
-      hue: i / Math.max(1, N - 1),
-      flash: 0
+      w: 0, hue: i / Math.max(1, N - 1), flash: 0
     }));
     let clacks = 0, simT = 0, modeI = 0;
 
@@ -161,72 +171,59 @@
       step(dt, t, ptr, pal) {
         fx.step(dt);
         simT += (dt / 60) * S.speed;
-        const sub = 10, sdt = (dt / 60) * S.speed / sub;
-        const g = 11.5 * Math.max(0.3, S.grav);
-
+        const sub = 10, sdt = (dt / 60) * S.speed / sub, g = 11.5 * Math.max(0.3, S.grav);
         for (let s = 0; s < sub; s++) {
           for (const b of balls) {
-            b.w += -(g / 1.4) * Math.sin(b.a) * sdt;
-            b.a += b.w * sdt;
-            b.w *= Math.pow(0.9994, sdt * 60);
-            b.flash *= Math.pow(0.88, sdt * 60);
+            b.w += -(g / 1.4) * Math.sin(b.a) * sdt; b.a += b.w * sdt;
+            b.w *= Math.pow(0.9994, sdt * 60); b.flash *= Math.pow(0.88, sdt * 60);
           }
-          // Pairwise elastic momentum transfer between adjacent spheres
           for (let i = 0; i < N - 1; i++) {
             const a = balls[i], b = balls[i + 1];
             const ax = a.px + Math.sin(a.a) * len, ay = topY + Math.cos(a.a) * len;
             const bx = b.px + Math.sin(b.a) * len, by = topY + Math.cos(b.a) * len;
-            const dist = Math.hypot(bx - ax, by - ay);
-            if (dist < r * 2 && a.w > b.w) {
+            if (Math.hypot(bx - ax, by - ay) < r * 2 && a.w > b.w) {
               const tmp = a.w; a.w = b.w * 0.996; b.w = tmp * 0.996;
-              // Keep non-overlapping
-              const mid = (a.a + b.a) * 0.5;
-              if (a.a > b.a) { a.a = mid; b.a = mid; }
+              const mid = (a.a + b.a) * 0.5; if (a.a > b.a) { a.a = mid; b.a = mid; }
               const imp = Math.abs(b.w - a.w);
               if (imp > 0.22) {
                 clacks++; a.flash = 1; b.flash = 1;
                 const mx = (ax + bx) * 0.5, my = (ay + by) * 0.5;
-                fx.burst(mx, my, pal.col(b.hue, 0.9), 5, 2.5 * dpr, 1.8);
-                fx.wave(mx, my, pal.col(b.hue, 0.8), 3, r * 1.4, 1.5, 0.45);
-                if (audio) KA.playClack((mx / w - 0.5) * 1.1, clamp(imp * 0.48, 0.25, 1), 0.94 + i * 0.025);
+                fx.burst(mx, my, pal.col(b.hue, 0.92), 6, 2.8 * dpr, 1.8);
+                fx.wave(mx, my, pal.col(b.hue, 0.8), 3, r * 1.5, 1.5, 0.48);
+                if (audio) { KA.playClack((mx / w - 0.5) * 1.1, clamp(imp * 0.5, 0.25, 1), 0.94 + i * 0.025); if (imp > 0.8) KA.playSub(0.28, 120); }
               }
             }
           }
         }
-        // Keep energy gently topped up if user turns bounce up or lets it run forever
         const energy = balls.reduce((acc, b) => acc + b.a * b.a + b.w * b.w * 0.12, 0);
         if (energy < 0.06) { balls[0].a = -0.78; balls[0].w = 0; }
       },
       draw(c, t, pal) {
         fillStudioBg(c, w, h, pal, 0.045);
-        // Brushed chrome crossbar frame
         const fw = (N + 1.4) * r * 2, fx0 = w / 2 - fw * 0.5;
         const barG = c.createLinearGradient(0, topY - 8 * dpr, 0, topY + 8 * dpr);
-        barG.addColorStop(0, 'rgba(255,255,255,0.28)');
-        barG.addColorStop(0.5, 'rgba(130,145,170,0.18)');
-        barG.addColorStop(1, 'rgba(20,24,32,0.5)');
+        barG.addColorStop(0, 'rgba(255,255,255,0.3)'); barG.addColorStop(0.5, 'rgba(130,145,170,0.2)'); barG.addColorStop(1, 'rgba(20,24,32,0.55)');
         c.fillStyle = barG;
-        c.beginPath();
-        c.roundRect ? c.roundRect(fx0, topY - 6 * dpr, fw, 12 * dpr, 6 * dpr) : c.rect(fx0, topY - 6 * dpr, fw, 12 * dpr);
-        c.fill();
+        c.beginPath(); c.roundRect ? c.roundRect(fx0, topY - 6 * dpr, fw, 12 * dpr, 6 * dpr) : c.rect(fx0, topY - 6 * dpr, fw, 12 * dpr); c.fill();
 
-        // Subtle floor reflection shadow
-        const floorY = topY + len + r * 1.75;
-        const fl = c.createRadialGradient(w / 2, floorY, 4, w / 2, floorY, fw * 0.55);
-        fl.addColorStop(0, 'rgba(0,0,0,0.42)');
-        fl.addColorStop(1, 'rgba(0,0,0,0)');
-        c.fillStyle = fl;
-        c.fillRect(fx0, floorY - 14 * dpr, fw, 28 * dpr);
+        // Live glossy table reflections & soft shadows beneath each sphere!
+        const floorY = topY + len + r * 1.68;
+        for (const b of balls) {
+          const x = b.px + Math.sin(b.a) * len, y = topY + Math.cos(b.a) * len;
+          const elev = Math.max(0, (floorY - (y + r)) / (r * 3));
+          const reflAlpha = clamp(0.26 - elev * 0.18, 0.03, 0.26);
+          const rg = c.createRadialGradient(x, floorY, 1, x, floorY, r * (1.05 + elev * 0.5));
+          rg.addColorStop(0, pal.col(b.hue, reflAlpha));
+          rg.addColorStop(1, 'rgba(0,0,0,0)');
+          c.fillStyle = rg;
+          c.beginPath(); c.ellipse(x, floorY, r * (1.05 + elev * 0.5), r * 0.34, 0, 0, TAU); c.fill();
+        }
 
         for (const b of balls) {
           const x = b.px + Math.sin(b.a) * len, y = topY + Math.cos(b.a) * len;
-          // Suspension taut wire
-          c.strokeStyle = `rgba(255,255,255,${0.2 + b.flash * 0.35})`;
-          c.lineWidth = 1.3 * dpr;
+          c.strokeStyle = `rgba(255,255,255,${0.2 + b.flash * 0.35})`; c.lineWidth = 1.3 * dpr;
           c.beginPath(); c.moveTo(b.px, topY + 4 * dpr); c.lineTo(x, y); c.stroke();
-          // Pin mount
-          c.fillStyle = 'rgba(255,255,255,0.5)';
-          c.beginPath(); c.arc(b.px, topY, 2.2 * dpr, 0, TAU); c.fill();
+          c.fillStyle = 'rgba(255,255,255,0.52)'; c.beginPath(); c.arc(b.px, topY, 2.2 * dpr, 0, TAU); c.fill();
           drawSphere(c, x, y, r, pal, b.hue, S.material === 'velvet' ? 'chrome' : S.material, true);
         }
         fx.draw(c, dpr);
@@ -235,7 +232,7 @@
         if (type === 'down') {
           modeI = (modeI + 1) % 3;
           balls.forEach(b => { b.a = 0; b.w = 0; });
-          if (modeI === 0) { balls[0].a = -0.82; }
+          if (modeI === 0) balls[0].a = -0.82;
           else if (modeI === 1) { balls[0].a = -0.8; balls[1].a = -0.8; }
           else { balls[0].a = -0.78; balls[1].a = -0.78; balls[N - 1].a = 0.78; }
           if (audio) KA.playClack(0, 0.75, 1.1);
@@ -247,67 +244,48 @@
     };
   };
 
-  /* --- 18. MARBLE RACE (Viral Multi-Stage Plinko / Windmill Obstacle Track!) --- */
+  /* --- 18. MARBLE RACE (With etched numbers & crisp obstacle flashes!) --- */
   SIMS.race = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const fx = makeFX(small);
-    const trackW = Math.min(w * 0.72, h * 0.62);
-    const ox = (w - trackW) * 0.5;
-    const mR = trackW * 0.032;
-    const trackLen = h * 3.8;
-    const N = small ? 5 : 8;
+    const trackW = Math.min(w * 0.72, h * 0.62), ox = (w - trackW) * 0.5, mR = trackW * 0.034;
+    const trackLen = h * 3.8, N = small ? 5 : 8;
 
     const marbles = Array.from({ length: N }, (_, i) => ({
-      id: i + 1,
-      x: ox + trackW * (0.14 + (i / (N - 1)) * 0.72),
-      y: h * 0.14 + (i % 2) * mR * 2.2,
-      vx: (Math.random() - 0.5) * 1.4, vy: 0,
-      hue: i / N, trail: []
+      id: i + 1, x: ox + trackW * (0.14 + (i / (N - 1)) * 0.72), y: h * 0.14 + (i % 2) * mR * 2.2,
+      vx: (Math.random() - 0.5) * 1.4, vy: 0, hue: i / N, trail: []
     }));
 
-    // Build obstacle course: rows of pegs, angled ramps, and rotating windmills!
     const pegs = [], spinners = [], ramps = [];
     for (let y = h * 0.34; y < trackLen - h * 0.35; y += trackW * 0.42) {
       const stage = Math.floor(y / (trackW * 0.42)) % 3;
       if (stage === 0) {
-        const cnt = 5;
-        for (let k = 0; k < cnt; k++) {
-          pegs.push({ x: ox + trackW * (0.14 + k / (cnt - 1) * 0.72), y, r: mR * 0.8, flash: 0 });
-        }
+        for (let k = 0; k < 5; k++) pegs.push({ x: ox + trackW * (0.14 + k / 4 * 0.72), y, r: mR * 0.82, flash: 0 });
       } else if (stage === 1) {
         spinners.push({ x: ox + trackW * 0.32, y, r: trackW * 0.17, ang: Math.random() * TAU, vel: 0.032 });
         spinners.push({ x: ox + trackW * 0.68, y, r: trackW * 0.17, ang: Math.random() * TAU, vel: -0.032 });
       } else {
         const dir = ((y | 0) % 2 === 0) ? 1 : -1;
-        ramps.push({
-          x0: dir > 0 ? ox + trackW * 0.06 : ox + trackW * 0.94, y0: y - trackW * 0.08,
-          x1: ox + trackW * (dir > 0 ? 0.62 : 0.38), y1: y + trackW * 0.08
-        });
+        ramps.push({ x0: dir > 0 ? ox + trackW * 0.06 : ox + trackW * 0.94, y0: y - trackW * 0.08, x1: ox + trackW * (dir > 0 ? 0.62 : 0.38), y1: y + trackW * 0.08 });
       }
     }
-
     let camY = 0, winner = null, finaleT = 0, done = false;
 
     return {
       step(dt, t, ptr, pal) {
         fx.step(dt);
         if (finaleT > 0) { finaleT -= dt / 60; if (finaleT <= 0) done = true; return; }
-        const sub = 5, sdt = dt * S.speed / sub;
-        const g = 0.25 * Math.max(0.35, S.grav) * (trackW / 320);
+        const sub = 5, sdt = dt * S.speed / sub, g = 0.25 * Math.max(0.35, S.grav) * (trackW / 320);
 
         for (let s = 0; s < sub; s++) {
           for (const sp of spinners) sp.ang = mod(sp.ang + sp.vel * sdt, TAU);
           for (const p of pegs) if (p.flash > 0.01) p.flash *= Math.pow(0.92, sdt);
 
           for (const m of marbles) {
-            m.vy += g * sdt;
-            m.x += m.vx * sdt; m.y += m.vy * sdt;
-            m.vx *= Math.pow(0.996, sdt);
-
+            m.vy += g * sdt; m.x += m.vx * sdt; m.y += m.vy * sdt; m.vx *= Math.pow(0.996, sdt);
             if (m.x - mR < ox) { m.x = ox + mR; m.vx = Math.abs(m.vx) * 0.8; }
             if (m.x + mR > ox + trackW) { m.x = ox + trackW - mR; m.vx = -Math.abs(m.vx) * 0.8; }
 
-            // Pegs
             for (const p of pegs) {
               const dx = m.x - p.x, dy = m.y - p.y, md = mR + p.r, d2 = dx * dx + dy * dy;
               if (d2 < md * md && d2 > 0.001) {
@@ -315,41 +293,33 @@
                 m.x = p.x + nx * md; m.y = p.y + ny * md;
                 const vn = m.vx * nx + m.vy * ny;
                 if (vn < 0) {
-                  m.vx = (m.vx - 1.72 * vn * nx) + (Math.random() - 0.5) * 0.3;
-                  m.vy = (m.vy - 1.72 * vn * ny);
+                  m.vx = (m.vx - 1.72 * vn * nx) + (Math.random() - 0.5) * 0.3; m.vy = (m.vy - 1.72 * vn * ny);
                   p.flash = 1;
+                  fx.burst(p.x + nx * p.r, p.y + ny * p.r, pal.col(m.hue, 0.85), 3, 2.2 * dpr, 1.5);
                   if (audio && Math.random() < 0.4) KA.playClack((m.x / w - 0.5) * 1.2, 0.35, 1.3 + m.hue * 0.3);
                 }
               }
             }
-            // Spinners (rotating crossbars)
             for (const sp of spinners) {
               for (let arm = 0; arm < 2; arm++) {
-                const a = sp.ang + arm * Math.PI * 0.5;
-                const ax = Math.cos(a) * sp.r, ay = Math.sin(a) * sp.r;
+                const a = sp.ang + arm * Math.PI * 0.5, ax = Math.cos(a) * sp.r, ay = Math.sin(a) * sp.r;
                 const x0 = sp.x - ax, y0 = sp.y - ay, x1 = sp.x + ax, y1 = sp.y + ay;
-                const ldx = x1 - x0, ldy = y1 - y0, l2 = ldx * ldx + ldy * ldy || 1;
-                const u = clamp(((m.x - x0) * ldx + (m.y - y0) * ldy) / l2, 0, 1);
-                const cx2 = x0 + u * ldx, cy2 = y0 + u * ldy;
-                const dx = m.x - cx2, dy = m.y - cy2, md = mR + 4 * dpr, d2 = dx * dx + dy * dy;
+                const ldx = x1 - x0, ldy = y1 - y0, u = clamp(((m.x - x0) * ldx + (m.y - y0) * ldy) / (ldx * ldx + ldy * ldy || 1), 0, 1);
+                const cx2 = x0 + u * ldx, cy2 = y0 + u * ldy, dx = m.x - cx2, dy = m.y - cy2, md = mR + 4 * dpr, d2 = dx * dx + dy * dy;
                 if (d2 < md * md && d2 > 0.001) {
                   const d = Math.sqrt(d2), nx = dx / d, ny = dy / d;
                   m.x = cx2 + nx * md; m.y = cy2 + ny * md;
                   const vn = m.vx * nx + m.vy * ny;
                   if (vn < 0) {
-                    m.vx -= 1.75 * vn * nx - ny * sp.vel * 42;
-                    m.vy -= 1.75 * vn * ny + nx * sp.vel * 42;
+                    m.vx -= 1.75 * vn * nx - ny * sp.vel * 42; m.vy -= 1.75 * vn * ny + nx * sp.vel * 42;
                     if (audio && Math.random() < 0.3) KA.playScale(m.id + 2, (m.x / w - 0.5) * 1.2, 0.3, { timbre: 'glass' });
                   }
                 }
               }
             }
-            // Angled ramps
             for (const rp of ramps) {
-              const ldx = rp.x1 - rp.x0, ldy = rp.y1 - rp.y0, l2 = ldx * ldx + ldy * ldy || 1;
-              const u = clamp(((m.x - rp.x0) * ldx + (m.y - rp.y0) * ldy) / l2, 0, 1);
-              const cx2 = rp.x0 + u * ldx, cy2 = rp.y0 + u * ldy;
-              const dx = m.x - cx2, dy = m.y - cy2, md = mR + 4 * dpr, d2 = dx * dx + dy * dy;
+              const ldx = rp.x1 - rp.x0, ldy = rp.y1 - rp.y0, u = clamp(((m.x - rp.x0) * ldx + (m.y - rp.y0) * ldy) / (ldx * ldx + ldy * ldy || 1), 0, 1);
+              const cx2 = rp.x0 + u * ldx, cy2 = rp.y0 + u * ldy, dx = m.x - cx2, dy = m.y - cy2, md = mR + 4 * dpr, d2 = dx * dx + dy * dy;
               if (d2 < md * md && d2 > 0.001) {
                 const d = Math.sqrt(d2), nx = dx / d, ny = dy / d;
                 m.x = cx2 + nx * md; m.y = cy2 + ny * md;
@@ -359,11 +329,10 @@
             }
             if (m.y >= trackLen - h * 0.2 && !winner) {
               winner = m; finaleT = 1.8;
-              fx.burst(m.x, m.y, pal.col(m.hue, 0.95), 44, 5 * dpr, 2.8);
-              if (audio) KA.playChord(4, 0.88);
+              fx.burst(m.x, m.y, pal.col(m.hue, 0.95), 52, 5.5 * dpr, 2.8);
+              if (audio) { KA.playSub(0.7, 92); KA.playChord(4, 0.88); }
             }
           }
-          // Marble-marble collisions
           for (let i = 0; i < N; i++) {
             const a = marbles[i];
             for (let j = i + 1; j < N; j++) {
@@ -385,21 +354,14 @@
       },
       draw(c, t, pal) {
         fillStudioBg(c, w, h, pal, 0.05);
-        c.save();
-        c.translate(0, -camY);
-
-        // Track walls
+        c.save(); c.translate(0, -camY);
         c.strokeStyle = 'rgba(255,255,255,0.2)'; c.lineWidth = 2.2 * dpr;
         c.beginPath(); c.moveTo(ox, 0); c.lineTo(ox, trackLen); c.moveTo(ox + trackW, 0); c.lineTo(ox + trackW, trackLen); c.stroke();
 
-        // Finish line checkered glow
         const fy = trackLen - h * 0.2;
-        c.strokeStyle = pal.col(0.15, 0.8); c.lineWidth = 3 * dpr;
-        c.setLineDash([8 * dpr, 8 * dpr]);
-        c.beginPath(); c.moveTo(ox, fy); c.lineTo(ox + trackW, fy); c.stroke();
-        c.setLineDash([]);
+        c.strokeStyle = pal.col(0.15, 0.8); c.lineWidth = 3 * dpr; c.setLineDash([8 * dpr, 8 * dpr]);
+        c.beginPath(); c.moveTo(ox, fy); c.lineTo(ox + trackW, fy); c.stroke(); c.setLineDash([]);
 
-        // Pegs, spinners, ramps
         for (const p of pegs) {
           c.fillStyle = p.flash > 0.2 ? '#fff' : 'rgba(205,218,240,0.45)';
           c.beginPath(); c.arc(p.x, p.y, p.r * (1 + p.flash * 0.35), 0, TAU); c.fill();
@@ -420,6 +382,12 @@
         for (const m of marbles) {
           if (S.trail > 5) drawSilkTrail(c, m.trail, pal, m.hue, mR * 0.95, 0.3);
           drawSphere(c, m.x, m.y, mR, pal, m.hue, S.material, true);
+          if (!small && mR > 7 * dpr) {
+            c.fillStyle = 'rgba(255,255,255,0.9)';
+            c.font = `600 ${Math.round(mR * 0.9)}px "DM Sans", sans-serif`;
+            c.textAlign = 'center'; c.textBaseline = 'middle';
+            c.fillText(m.id, m.x, m.y + 0.5);
+          }
         }
         fx.draw(c, dpr);
         c.restore();
@@ -521,7 +489,7 @@
     };
   };
 
-  /* --- 20. DOMINO SPIRAL --- */
+  /* --- 20. DOMINO SPIRAL (With soft 3D cast drop shadows!) --- */
   SIMS.domino = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.43;
@@ -557,8 +525,11 @@
         const tw = Math.max(4 * dpr, R * 0.03), th = Math.max(10 * dpr, R * 0.088);
         for (const tl of tiles) {
           c.save(); c.translate(tl.x, tl.y); c.rotate(tl.ang);
-          const tilt = Math.cos(tl.fall * 1.18);
-          drawBevelRect(c, -tw * 0.5, -th * 0.5 * tilt, tw, Math.max(2.5 * dpr, th * tilt), pal, tl.hue, 0.4 + tl.fall * 0.48, tl.lit, 2);
+          const tilt = Math.cos(tl.fall * 1.18), hDraw = Math.max(2.5 * dpr, th * tilt);
+          // 3D cast drop shadow underneath tile
+          c.fillStyle = 'rgba(0,0,0,0.42)';
+          c.fillRect(-tw * 0.5 + 2.5 * dpr, -hDraw * 0.5 + 3.5 * dpr, tw, hDraw);
+          drawBevelRect(c, -tw * 0.5, -hDraw * 0.5, tw, hDraw, pal, tl.hue, 0.42 + tl.fall * 0.5, tl.lit, 2);
           c.restore();
         }
         fx.draw(c, dpr);
@@ -578,16 +549,17 @@
     };
   };
 
-  /* --- 21. WATER RIPPLE TANK (Real 2D Wave Equation + Glossy Caustic Shading!) --- */
+  /* --- 21. WATER RIPPLE TANK (Dual-light studio caustics + droplet crowns!) --- */
   SIMS.ripples = (w, h, opts) => {
-    const { small, audio, S } = opts;
+    const { dpr, small, audio, S } = opts;
     const GW = small ? 76 : 156, GH = small ? 58 : Math.round(156 * (h / Math.max(1, w)));
     let cur = new Float32Array(GW * GH), prev = new Float32Array(GW * GH);
     const buf = document.createElement('canvas'); buf.width = GW; buf.height = GH;
     const bctx = buf.getContext('2d'), img = bctx.createImageData(GW, GH);
+    const fx = makeFX(small);
     let simT = 0, dropT = 0, drops = 0;
 
-    const dropAt = (gx, gy, str = 1.6, rad = 3) => {
+    const dropAt = (gx, gy, str = 1.6, rad = 3, pal = null) => {
       for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) {
         const px = gx + dx, py = gy + dy;
         if (px > 1 && px < GW - 2 && py > 1 && py < GH - 2) {
@@ -596,26 +568,22 @@
         }
       }
       drops++;
+      if (pal) fx.wave((gx / GW) * w, (gy / GH) * h, pal.col(0.05, 0.55), 2, 34 * dpr, 1.4, 0.45);
     };
     dropAt(GW >> 1, GH >> 1, 2.2, 4);
 
     return {
-      step(dt, t, ptr) {
-        simT += (dt / 60) * S.speed;
-        dropT += (dt / 60) * S.speed;
+      step(dt, t, ptr, pal) {
+        fx.step(dt);
+        simT += (dt / 60) * S.speed; dropT += (dt / 60) * S.speed;
         if (dropT > (small ? 0.85 : 0.72)) {
           dropT = 0;
-          const gx = Math.floor(GW * (0.18 + Math.random() * 0.64));
-          const gy = Math.floor(GH * (0.18 + Math.random() * 0.64));
-          dropAt(gx, gy, 1.85, 3);
+          const gx = Math.floor(GW * (0.18 + Math.random() * 0.64)), gy = Math.floor(GH * (0.18 + Math.random() * 0.64));
+          dropAt(gx, gy, 1.85, 3, pal);
           if (audio) KA.playWaterDrop((gx / GW - 0.5) * 1.4, 0.75 + Math.random() * 0.85, 0.65);
         }
-        if (ptr && ptr.down) {
-          const gx = clamp(Math.floor(ptr.x / w * GW), 2, GW - 3);
-          const gy = clamp(Math.floor(ptr.y / h * GH), 2, GH - 3);
-          dropAt(gx, gy, 0.9, 3);
-        }
-        const damp = 0.978;
+        if (ptr && ptr.down) dropAt(clamp(Math.floor(ptr.x / w * GW), 2, GW - 3), clamp(Math.floor(ptr.y / h * GH), 2, GH - 3), 0.9, 3);
+        const damp = 0.98;
         const steps = S.speed > 1.3 ? 2 : 1;
         for (let st = 0; st < steps; st++) {
           const next = new Float32Array(GW * GH);
@@ -630,32 +598,28 @@
         }
       },
       draw(c, t, pal) {
-        const d = img.data;
-        const base = pal.rgb(0.25), hi = pal.rgb(0.05), deep = pal.rgb(0.75);
+        const d = img.data, base = pal.rgb(0.28), hi = pal.rgb(0.04), rim = pal.rgb(0.65), deep = pal.rgb(0.8);
         for (let y = 1; y < GH - 1; y++) {
           const row = y * GW;
           for (let x = 1; x < GW - 1; x++) {
-            const i = row + x;
-            const dx = cur[i + 1] - cur[i - 1];
-            const dy = cur[i + GW] - cur[i - GW];
-            // Specular lighting from top-left studio light
-            const light = clamp(0.18 + (-dx - dy) * 0.65, 0, 1);
-            const spec = Math.pow(clamp((-dx - dy) * 0.55, 0, 1), 3.0);
+            const i = row + x, dx = cur[i + 1] - cur[i - 1], dy = cur[i + GW] - cur[i - GW];
+            const light = clamp(0.18 + (-dx - dy) * 0.68, 0, 1);
+            const spec = Math.pow(clamp((-dx - dy) * 0.58, 0, 1), 2.8);
+            const bounce = clamp((dx + dy) * 0.42, 0, 0.5);
             const o = i * 4;
-            d[o]     = clamp(deep[0] * 0.14 + base[0] * light * 0.65 + hi[0] * spec * 1.15, 0, 255);
-            d[o + 1] = clamp(deep[1] * 0.14 + base[1] * light * 0.65 + hi[1] * spec * 1.15, 0, 255);
-            d[o + 2] = clamp(deep[2] * 0.16 + base[2] * light * 0.65 + hi[2] * spec * 1.15, 0, 255);
+            d[o]     = clamp(deep[0] * 0.12 + base[0] * light * 0.62 + hi[0] * spec * 1.2 + rim[0] * bounce * 0.35, 0, 255);
+            d[o + 1] = clamp(deep[1] * 0.12 + base[1] * light * 0.62 + hi[1] * spec * 1.2 + rim[1] * bounce * 0.35, 0, 255);
+            d[o + 2] = clamp(deep[2] * 0.15 + base[2] * light * 0.62 + hi[2] * spec * 1.2 + rim[2] * bounce * 0.35, 0, 255);
             d[o + 3] = 255;
           }
         }
         bctx.putImageData(img, 0, 0);
-        c.imageSmoothingEnabled = true;
-        c.drawImage(buf, 0, 0, w, h);
+        c.imageSmoothingEnabled = true; c.drawImage(buf, 0, 0, w, h);
+        fx.draw(c, dpr);
       },
-      interact(type, x, y) {
+      interact(type, x, y, pal) {
         if (type === 'down') {
-          const gx = clamp(Math.floor(x / w * GW), 2, GW - 3), gy = clamp(Math.floor(y / h * GH), 2, GH - 3);
-          dropAt(gx, gy, 2.4, 4);
+          dropAt(clamp(Math.floor(x / w * GW), 2, GW - 3), clamp(Math.floor(y / h * GH), 2, GH - 3), 2.4, 4, pal);
           if (audio) KA.playWaterDrop((x / w - 0.5) * 1.4, 0.9 + Math.random() * 0.5, 0.8);
         }
       },
@@ -668,15 +632,11 @@
   /* --- 22. DOUBLE PENDULUM CHAOS FAN --- */
   SIMS.doublepend = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
-    const cx = w / 2, cy = h * 0.44;
-    const L1 = Math.min(w, h) * 0.21, L2 = Math.min(w, h) * 0.2;
-    const N = small ? 6 : 12;
+    const cx = w / 2, cy = h * 0.44, L1 = Math.min(w, h) * 0.21, L2 = Math.min(w, h) * 0.2, N = small ? 6 : 12;
     let pends = [], simT = 0, lastChime = 0;
 
     const resetFan = (a1 = 2.38, a2 = 2.15) => {
-      pends = Array.from({ length: N }, (_, i) => ({
-        a1: a1 + i * 0.0012, a2: a2 + i * 0.0012, w1: 0, w2: 0, hue: i / Math.max(1, N - 1), trail: []
-      }));
+      pends = Array.from({ length: N }, (_, i) => ({ a1: a1 + i * 0.0012, a2: a2 + i * 0.0012, w1: 0, w2: 0, hue: i / Math.max(1, N - 1), trail: [] }));
       simT = 0;
     };
     resetFan();
@@ -689,9 +649,8 @@
     };
 
     return {
-      step(dt, t, ptr) {
-        const g = 9.8 * Math.max(0.2, S.grav);
-        const sub = 6, hStep = (dt / 60) * S.speed * 0.85 / sub;
+      step(dt) {
+        const g = 9.8 * Math.max(0.2, S.grav), sub = 6, hStep = (dt / 60) * S.speed * 0.85 / sub;
         simT += (dt / 60) * S.speed;
         const tLen = Math.round(16 + S.trail * 1.0);
         for (let s = 0; s < sub; s++) {
@@ -709,8 +668,7 @@
         for (const p of pends) {
           p.x1 = cx + Math.sin(p.a1) * L1; p.y1 = cy + Math.cos(p.a1) * L1;
           p.x2 = p.x1 + Math.sin(p.a2) * L2; p.y2 = p.y1 + Math.cos(p.a2) * L2;
-          p.trail.push([p.x2, p.y2]);
-          while (p.trail.length > tLen) p.trail.shift();
+          p.trail.push([p.x2, p.y2]); while (p.trail.length > tLen) p.trail.shift();
         }
         if (audio && simT - lastChime > 0.28 && Math.abs(pends[0].w2) > 4) {
           lastChime = simT;
@@ -726,7 +684,7 @@
           c.beginPath(); c.moveTo(cx, cy); c.lineTo(p.x1, p.y1); c.lineTo(p.x2, p.y2); c.stroke();
           drawSphere(c, p.x2, p.y2, 4.8 * dpr, pal, p.hue, S.material, false);
         }
-        drawSphere(c, cx, cy, 4.2 * dpr, pal, 0.1, 'chrome', false);
+        drawSphere(c, cx, cy, 4.4 * dpr, pal, 0.1, 'chrome', false);
       },
       interact(type, x, y) { if (type === 'down') { const a = Math.atan2(x - cx, y - cy); resetFan(a, a * 0.9); if (audio) KA.playChord(3, 0.55); } },
       stat() { return `Spread ${clamp(Math.round(Math.hypot(pends[0].x2 - pends[N - 1].x2, pends[0].y2 - pends[N - 1].y2) / (L1 + L2) * 100), 0, 100)}%`; },
@@ -735,17 +693,18 @@
     };
   };
 
-  /* --- 23. SAND HOURGLASS --- */
+  /* --- 23. SAND HOURGLASS (With shimmering mineral grain variation!) --- */
   SIMS.sand = (w, h, opts) => {
     const { small, audio, S } = opts;
     const GW = small ? 72 : 140, GH = small ? 54 : 140;
     const grid = new Uint16Array(GW * GH);
+    const grainShade = new Float32Array(GW * GH);
     const buf = document.createElement('canvas'); buf.width = GW; buf.height = GH;
     const bctx = buf.getContext('2d'), img = bctx.createImageData(GW, GH);
     const size = Math.min(w, h) * 0.8, ox = (w - size) / 2, oy = (h - size) / 2;
 
     const buildBaffles = () => {
-      grid.fill(0);
+      grid.fill(0); grainShade.fill(1);
       const line = (x0, y0, x1, y1) => {
         const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 2;
         for (let i = 0; i <= steps; i++) {
@@ -769,7 +728,10 @@
         if (dx * dx + dy * dy > rad * rad + 1) continue;
         const px = gx + dx, py = gy + dy;
         if (px > 1 && px < GW - 2 && py > 1 && py < GH - 2 && grid[py * GW + px] === 0 && Math.random() < 0.72) {
-          grid[py * GW + px] = 2 + (Math.floor(hueTick) % 64); grains++;
+          const idx = py * GW + px;
+          grid[idx] = 2 + (Math.floor(hueTick) % 64);
+          grainShade[idx] = 0.82 + Math.random() * 0.32;
+          grains++;
         }
       }
     };
@@ -787,12 +749,12 @@
             for (let xi = 0; xi < GW; xi++) {
               const x = dir > 0 ? xi : GW - 1 - xi, i = y * GW + x, v = grid[i];
               if (v < 2) continue;
-              const below = (y + 1) * GW + x;
-              if (grid[below] === 0) { grid[below] = v; grid[i] = 0; moved++; }
+              const sh = grainShade[i], below = (y + 1) * GW + x;
+              if (grid[below] === 0) { grid[below] = v; grainShade[below] = sh; grid[i] = 0; moved++; }
               else {
                 const d1 = Math.random() < 0.5 ? -1 : 1;
-                if (x + d1 >= 0 && x + d1 < GW && grid[below + d1] === 0) { grid[below + d1] = v; grid[i] = 0; moved++; }
-                else if (x - d1 >= 0 && x - d1 < GW && grid[below - d1] === 0) { grid[below - d1] = v; grid[i] = 0; moved++; }
+                if (x + d1 >= 0 && x + d1 < GW && grid[below + d1] === 0) { grid[below + d1] = v; grainShade[below + d1] = sh; grid[i] = 0; moved++; }
+                else if (x - d1 >= 0 && x - d1 < GW && grid[below - d1] === 0) { grid[below - d1] = v; grainShade[below - d1] = sh; grid[i] = 0; moved++; }
               }
             }
           }
@@ -811,7 +773,10 @@
           const v = grid[i], o = i * 4;
           if (v === 0) { d[o] = 9; d[o + 1] = 11; d[o + 2] = 16; d[o + 3] = 255; }
           else if (v === 1) { d[o] = 175; d[o + 1] = 190; d[o + 2] = 215; d[o + 3] = 255; }
-          else { const rgb = pal.rgb((v - 2) / 64); d[o] = rgb[0]; d[o + 1] = rgb[1]; d[o + 2] = rgb[2]; d[o + 3] = 255; }
+          else {
+            const rgb = pal.rgb((v - 2) / 64), s = grainShade[i];
+            d[o] = clamp(rgb[0] * s, 0, 255); d[o + 1] = clamp(rgb[1] * s, 0, 255); d[o + 2] = clamp(rgb[2] * s, 0, 255); d[o + 3] = 255;
+          }
         }
         bctx.putImageData(img, 0, 0);
         c.imageSmoothingEnabled = false;
@@ -825,7 +790,7 @@
     };
   };
 
-  /* --- 24. CAUSTIC CHAMBER --- */
+  /* --- 24. CAUSTIC CHAMBER (Dual counter-sweeping harmonic beams!) --- */
   SIMS.laser = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.41;
@@ -848,8 +813,10 @@
         let a = simT * 0.14;
         for (let i = 0; i < rays; i++) {
           const aNext = a + stepAng * 2, f = i / rays;
+          const x1 = cx + Math.cos(aNext) * R, y1 = cy + Math.sin(aNext) * R;
           c.strokeStyle = pal.col(f * 0.9 + simT * 0.04, 0.42 * (1 - f * 0.35));
-          c.beginPath(); c.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); c.lineTo(cx + Math.cos(aNext) * R, cy + Math.sin(aNext) * R); c.stroke();
+          c.beginPath(); c.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); c.lineTo(x1, y1); c.stroke();
+          if (i % 2 === 0) { c.fillStyle = pal.col(f, 0.72); c.beginPath(); c.arc(x1, y1, 1.8 * dpr, 0, TAU); c.fill(); }
           a = aNext;
         }
         c.restore();
@@ -861,7 +828,7 @@
     };
   };
 
-  /* --- 25. ORBITAL SLINGSHOT --- */
+  /* --- 25. ORBITAL SLINGSHOT (With gravity-well contour rings!) --- */
   SIMS.gravity = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.41;
@@ -910,13 +877,15 @@
       },
       draw(c, t, pal) {
         fillStudioBg(c, w, h, pal, 0.05);
+        // Subtle gravity contour circles
+        c.strokeStyle = 'rgba(255,255,255,0.04)'; c.lineWidth = 1 * dpr;
+        for (let k = 1; k <= 4; k++) { c.beginPath(); c.arc(cx, cy, R * 0.28 * k, 0, TAU); c.stroke(); }
+
         for (const cm of comets) {
           if (S.trail > 3) drawSilkTrail(c, cm.trail, pal, cm.hue, 3.2 * dpr, 0.48, 0.08);
           drawSphere(c, cm.x, cm.y, 4.8 * dpr, pal, cm.hue, S.material, false);
         }
-        for (const st of (this._stars || [])) {
-          drawSphere(c, st.x, st.y, 11 * dpr, pal, 0.08, 'velvet', false);
-        }
+        for (const st of (this._stars || [])) drawSphere(c, st.x, st.y, 11 * dpr, pal, 0.08, 'velvet', false);
         if (dragStart && dragNow) {
           c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = 1.6 * dpr; c.setLineDash([4 * dpr, 4 * dpr]);
           c.beginPath(); c.moveTo(dragStart.x, dragStart.y); c.lineTo(dragNow.x, dragNow.y); c.stroke(); c.setLineDash([]);
@@ -1015,7 +984,7 @@
     };
   };
 
-  /* --- 27. SILK MESH --- */
+  /* --- 27. SILK MESH (With autonomous gliding ripple orb!) --- */
   SIMS.cloth = (w, h, opts) => {
     const { dpr, small, audio, S } = opts;
     const cols = small ? 13 : 24, rows = small ? 10 : 17;
@@ -1037,15 +1006,22 @@
       step(dt, t, ptr) {
         simT += (dt / 60) * S.speed;
         const g = 0.28 * S.grav * dpr, wind = Math.sin(simT * 1.4) * 0.14 * dpr;
+        // Gentle autonomous orb sweeping across the mesh when idle
+        const gx = ptr && ptr.in ? ptr.x : w * 0.5 + Math.sin(simT * 0.9) * mw * 0.36;
+        const gy = ptr && ptr.in ? ptr.y : oy + mh * 0.54 + Math.cos(simT * 1.35) * mh * 0.22;
+        this._gx = gx; this._gy = gy;
+
         for (const p of pts) {
           if (p.pin) continue;
           const vx = (p.x - p.ox) * 0.985, vy = (p.y - p.oy) * 0.985;
           p.ox = p.x; p.oy = p.y;
           p.x += vx + wind + Math.sin(simT * 2.4 + p.x * 0.014 + p.y * 0.01) * 0.12 * dpr;
           p.y += vy + g;
-          if (ptr && ptr.in) {
-            const dx = p.x - ptr.x, dy = p.y - ptr.y, d = Math.hypot(dx, dy), R = (ptr.down ? 95 : 55) * dpr;
-            if (d < R && d > 1) { const push = (1 - d / R) * (ptr.down ? 12 : 3.2) * dpr; p.x += dx / d * push; p.y += dy / d * push; }
+          const dx = p.x - gx, dy = p.y - gy, d = Math.hypot(dx, dy);
+          const R = (ptr && ptr.down ? 95 : 54) * dpr;
+          if (d < R && d > 1) {
+            const push = (1 - d / R) * (ptr && ptr.down ? 12 : 3.2) * dpr;
+            p.x += dx / d * push; p.y += dy / d * push;
           }
         }
         for (let it = 0; it < 5; it++) for (const lk of links) {
@@ -1059,7 +1035,7 @@
           KA.playScale(Math.floor((1 - ptr.y / h) * 12) + 2, (ptr.x / w - 0.5) * 1.4, 0.34, { timbre: 'kalimba' });
         }
       },
-      draw(c, t, pal) {
+      draw(c, t, pal, ptr) {
         fillStudioBg(c, w, h, pal, 0.045);
         c.lineWidth = (small ? 1 : 1.4) * dpr;
         for (const lk of links) {
@@ -1069,6 +1045,7 @@
           c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
         }
         for (const p of pts) if (p.pin) drawSphere(c, p.x, p.y, 3.4 * dpr, pal, 0.2, 'chrome', false);
+        if (!ptr || !ptr.in) drawSphere(c, this._gx || w * 0.5, this._gy || h * 0.5, 7 * dpr, pal, 0.1, S.material, false);
       },
       interact(type, x, y) {
         if (type === 'down') {
@@ -1107,8 +1084,7 @@
             const rad = arms[i][0] * R, a = simT * (arms[i][1] + (i === 1 ? morph : 0));
             x += Math.cos(a) * rad; y += Math.sin(a) * rad;
           }
-          trace.push([x, y, (simT * 0.08) % 1]);
-          while (trace.length > maxTrace) trace.shift();
+          trace.push([x, y, (simT * 0.08) % 1]); while (trace.length > maxTrace) trace.shift();
         }
         const beat = Math.floor(simT * 2.5);
         if (audio && beat !== lastStep) {
@@ -1135,10 +1111,10 @@
           c.beginPath(); c.arc(x, y, rad, 0, TAU); c.stroke();
           c.strokeStyle = 'rgba(255,255,255,0.68)'; c.lineWidth = 1.8 * dpr;
           c.beginPath(); c.moveTo(x, y); c.lineTo(nx, ny); c.stroke();
-          drawSphere(c, x, y, 2.8 * dpr, pal, 0.2, 'chrome', false);
+          drawSphere(c, x, y, 3 * dpr, pal, 0.2, 'chrome', false);
           x = nx; y = ny;
         }
-        drawSphere(c, x, y, 5.2 * dpr, pal, (simT * 0.08) % 1, S.material, false);
+        drawSphere(c, x, y, 5.4 * dpr, pal, (simT * 0.08) % 1, S.material, false);
       },
       interact(type) { if (type === 'down') { presetI = (presetI + 1) % PRESETS.length; trace = []; if (audio) KA.playChord(presetI * 2, 0.5); } },
       stat() { return `Harmonic #${presetI + 1} · Tap to morph`; },
